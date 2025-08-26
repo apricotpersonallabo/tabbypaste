@@ -1,0 +1,85 @@
+# .github/workflows/release-from-manifest.yml
+name: Release from manifest.json
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]  # adjust if needed
+
+permissions:
+  contents: write        # required to push tags and create releases
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo (with tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure manifest exists
+        run: |
+          test -f "src/manifest.json" || (echo "src/manifest.json not found"; exit 1)
+
+      - name: Read version from manifest.json
+        id: ver
+        run: |
+          VERSION=$(jq -r '.version' "src/manifest.json")
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "No version found in src/manifest.json"; exit 1
+          fi
+          # Normalize tag: use v<version> unless it already starts with v
+          if [[ "$VERSION" =~ ^v ]]; then
+            TAG="$VERSION"
+          else
+            TAG="v$VERSION"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Get repo name
+        id: repo
+        run: |
+          REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+          echo "repo_name=$REPO_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if the release/tag already exists
+        id: tagcheck
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          # Check if the tag exists
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Please increment the version in manifest.json."
+            exit 1
+          fi
+          # Check if the release exists via GitHub API
+          RELEASE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$RELEASE_URL")
+          if [ "$STATUS" -eq 200 ]; then
+            echo "Release for tag $TAG already exists. Please increment the version in manifest.json."
+            exit 1
+          fi
+
+      - name: Create zip (zip root contains manifest.json)
+        id: zip
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          REPO_NAME="${{ steps.repo.outputs.repo_name }}"
+          ZIP_NAME="${REPO_NAME}-${TAG}.zip"
+          cd src
+          # exclude common junk if present
+          zip -r "../$ZIP_NAME" . -x "node_modules/*" "*.map" ".DS_Store" "*.log"
+          cd -
+          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create/Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          generate_release_notes: true
+          files: ${{ steps.zip.outputs.zip_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

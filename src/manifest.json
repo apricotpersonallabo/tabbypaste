@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "version": "1.0.0",
+  "name": "Tabby Paste",
+  "description": "クリップボードのタブ区切り文字列を入力フィールドに自動貼り付け / Auto paste tab-separated string from clipboard to each input field.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "32": "icons/icon32.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "Open Popup"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "contextMenus",
+    "clipboardRead"
+  ],
+  "commands": {
+    "auto_paste": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+V"
+      },
+      "description": "Tabby Paste"
+    }
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
