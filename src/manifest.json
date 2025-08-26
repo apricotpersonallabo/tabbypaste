@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "Tabby Paste",
   "description": "クリップボードのタブ区切り文字列を入力フィールドに自動貼り付け / Auto paste tab-separated string from clipboard to each input field.",
   "icons": {
@@ -33,8 +33,5 @@
       },
       "description": "Tabby Paste"
     }
-  },
-  "host_permissions": [
-    "<all_urls>"
-  ]
+  }
 }
