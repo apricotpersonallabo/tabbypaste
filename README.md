@@ -1,17 +1,14 @@
-# tabbypaste
+# README
 
-This repository is a Chrome extension.
+Tabby Paste is a Chrome extension. This extension is input support tool.
 
 ## Overview
 A Chrome extension project. Auto paste tab-separated string from clipboard to each input field.
 
-## Setup
-Clone this repository and follow typical Chrome extension installation steps:
-1. Download or clone the repository.
-2. Open Chrome and navigate to `chrome://extensions/`.
-3. Enable "Developer mode".
-4. Click "Load unpacked" and select the extension directory.
+## Install
+You can install from Chrome store.
+https://chromewebstore.google.com/detail/tabby-paste/pnfhlnlilceabibdeamkinhjjgmmnhme
 
-## How to use
-After installation, the extension will be available in your Chrome browser.
-Refer to the extension's popup or options for usage details.
+## User manual
+You can see the user manual in this repository.
+https://github.com/apricotpersonallabo/tabbypaste/wiki
