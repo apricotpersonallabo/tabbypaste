@@ -1,15 +1,29 @@
 /**
- * Tab-Paster  filler.js  (KeyboardEvent 版)
+ * Tab-Paster  filler.js  (KeyboardEvent 版・遅延設定対応版)
  *
- * 1. クリップボードから text/plain を取得
- * 2. タブ区切りで配列化
- * 3. 表示中で編集可能な <input type="text">, <select>, <textarea> を列挙
- * 4. フォーカス中の要素を起点に、キー入力を模倣して値を貼り付ける
- *    - input/textarea: 文字入力を模倣
- *    - select: 先頭一致で選択肢を選択
+ * 改善点:
+ * - ループ毎に最新DOMから allElements を再取得
+ * - フォーカス・入力・選択・Tab移動で描画待ちを挟み、さらに任意遅延 delayMs を反映
+ * - Tab送出後にフォーカスが移らなければ明示的に次要素へ focus()
+ * - selectの一致精度向上（正規化＋厳密→前方→部分一致、value/text優先切替、再適用）
+ * - 任意の遅延時間を設定できる config.delayMs を追加
  */
 
 (async () => {
+  /* --- 設定 ------------------------------------------------------ */
+  const config = {
+    // 任意の遅延ミリ秒。0なら遅延なし。例: 50, 100, 200 等
+    delayMs: 0,
+
+    // selectの検索挙動
+    select: {
+      valueFirst: true,            // true: value→text の順で検索
+      allowContainsFallback: true, // 前方一致でだめなら部分一致へ
+      verifyAndRetry: true,        // 設定直後の値が上書きされたら再適用
+      waitOptions: true           // 遅延描画が疑われるUIなら true に
+    }
+  };
+
   /* 1. クリップボード読み取り */
   let raw = '';
   try {
@@ -28,119 +42,276 @@
   /* 2. タブ区切りで分割 */
   const values = raw.split('\t');
 
-  /* 3. 対象となる input[type=text], select, textarea を DOM順序で抽出 */
-  const allElements = Array.from(document.querySelectorAll('input[type="text"], select, textarea')).filter(el => {
-    // 共通の条件チェック
-    if (el.offsetParent === null) return false; // 非表示要素を除外
-    if (el.disabled) return false; // disabled要素を除外
-    
-    // 要素タイプ別の条件チェック
-    const tagName = el.tagName.toLowerCase();
-    
-    if (tagName === 'input') {
-      return el instanceof HTMLInputElement 
-        && el.type === 'text' 
-        && !el.readOnly;
-    } else if (tagName === 'select') {
-      return el instanceof HTMLSelectElement;
-    } else if (tagName === 'textarea') {
-      return el instanceof HTMLTextAreaElement
-        && !el.readOnly;
-    }
-    
-    return false;
-  });
+  /* 対象要素の再取得関数（毎ループで使用） */
+  const getAllElements = () => {
+    return Array.from(document.querySelectorAll('input[type="text"], input[type="password"], select, textarea')).filter(el => {
+      if (el.offsetParent === null) return false; // 非表示を除外
+      if (el.disabled) return false; // disabled を除外
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'input') {
+        return el instanceof HTMLInputElement &&
+          (el.type === 'text' || el.type === 'password') &&
+          !el.readOnly;
+      } else if (tag === 'select') {
+        return el instanceof HTMLSelectElement;
+      } else if (tag === 'textarea') {
+        return el instanceof HTMLTextAreaElement && !el.readOnly;
+      }
+      return false;
+    });
+  };
 
+  /* 初回チェック */
+  let allElements = getAllElements();
   if (!allElements.length) {
     alert('入力フィールド (<input type="text">, <select>, <textarea>) が見つかりませんでした。');
     return;
   }
-
-  console.log('Found elements in DOM order:', allElements.map(el => `${el.tagName.toLowerCase()}${el.type ? `[type="${el.type}"]` : ''}`));
-
-  /* 4. フォーカス位置を起点に貼り付け */
-  const activeEl = document.activeElement;
-  const startIdx = allElements.indexOf(activeEl);
-
-  if (startIdx === -1) {
+  if (allElements.indexOf(document.activeElement) === -1) {
     alert('入力フィールドにフォーカスしてください。');
-    return;                              // 中断
+    return;
   }
 
-  /* --- 便利関数群 ------------------------------------------------ */
+  /* --- 待機ユーティリティ -------------------------------------- */
+  const sleep = async (ms) => {
+    if (!ms || ms <= 0) return;
+    await new Promise(resolve => setTimeout(resolve, ms));
+  };
 
-  // KeyboardEvent を生成して dispatch
+  const waitForRender = async () => {
+    await Promise.resolve(); // microtask
+    await new Promise(requestAnimationFrame); // 次フレーム
+    await new Promise(r => setTimeout(r, 0)); // ペイント猶予
+    // 任意遅延
+    await sleep(config.delayMs);
+  };
+
+  /* --- キーイベント/入力ヘルパー ------------------------------- */
   const fireKeyEvent = (el, type, key, code, extra = {}) => {
-    // {key,code,which,keyCode} を揃える
+    const charCode = key && key.length === 1 ? key.charCodeAt(0) : 0;
     const evt = new KeyboardEvent(type, {
-      key,
-      code,
-      which: key.length === 1 ? key.charCodeAt(0) : 0,
-      keyCode: key.length === 1 ? key.charCodeAt(0) : 0,
-      bubbles: true,
-      cancelable: true,
-      ...extra
+      key, code,
+      which: extra.which ?? charCode,
+      keyCode: extra.keyCode ?? charCode,
+      bubbles: true, cancelable: true
     });
     el.dispatchEvent(evt);
   };
 
-  // 1 文字を入力: keydown -> keypress -> (value 追加して input) -> keyup
   const insertChar = (el, ch) => {
-    fireKeyEvent(el, 'keydown', ch, `Key${ch.toUpperCase()}`);
-    fireKeyEvent(el, 'keypress', ch, `Key${ch.toUpperCase()}`);
+    const code = /^[a-z]$/i.test(ch) ? `Key${ch.toUpperCase()}` : '';
+    fireKeyEvent(el, 'keydown', ch, code);
+    fireKeyEvent(el, 'keypress', ch, code);
     const oldVal = el.value;
     el.value = oldVal + ch;
     el.dispatchEvent(new Event('input', { bubbles: true }));
-    fireKeyEvent(el, 'keyup', ch, `Key${ch.toUpperCase()}`);
+    fireKeyEvent(el, 'keyup', ch, code);
   };
 
-  // select で先頭一致する選択肢を選択
-  const selectByPrefix = (selectEl, prefix) => {
-    if (!prefix) return;
-    
-    const options = Array.from(selectEl.options);
-    const matchedOption = options.find(option => 
-      option.text.toLowerCase().startsWith(prefix.toLowerCase()) ||
-      option.value.toLowerCase().startsWith(prefix.toLowerCase())
-    );
-    
-    if (matchedOption) {
-      selectEl.value = matchedOption.value;
-      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  };
-
-  // TAB キーで次フィールドへ
   const pressTab = (el) => {
     fireKeyEvent(el, 'keydown', 'Tab', 'Tab', { keyCode: 9, which: 9 });
-    fireKeyEvent(el, 'keyup',   'Tab', 'Tab', { keyCode: 9, which: 9 });
+    fireKeyEvent(el, 'keyup', 'Tab', 'Tab', { keyCode: 9, which: 9 });
   };
 
-  /* --- 実際の貼り付けループ ------------------------------------- */
-  values.forEach((val, idx) => {
-    const el = allElements[startIdx + idx];
-    if (!el) return; // フィールド不足
+  /* --- 文字列正規化ユーティリティ ------------------------------- */
+  const normalize = (s) => {
+    if (s == null) return '';
+    let t = String(s)
+      .replace(/\u00A0/g, ' ')      // NBSP→半角スペース
+      .replace(/\s+/g, ' ')         // 連続空白を1つに
+      .trim();
+    try {
+      t = t.normalize('NFKC');      // 全角半角を正規化
+    } catch (_) {/* normalize未対応でも可 */ }
+    return t.toLowerCase();
+  };
 
-    console.log(`Processing ${idx}: ${el.tagName.toLowerCase()} with value "${val}"`);
+  /* --- select: 遅延描画・options更新待ち（必要時） -------------- */
+  const waitForOptionsStable = async (selectEl, timeoutMs = 500) => {
+    const start = performance.now();
+    const initialLen = selectEl.options.length;
 
-    el.focus();
+    await Promise.resolve();
+    await new Promise(requestAnimationFrame);
 
-    const tagName = el.tagName.toLowerCase();
-    
-    if (tagName === 'input' || tagName === 'textarea') {
-      // input[type="text"] または textarea の場合: 既存の値をクリアしてから文字を 1 つずつ「タイプ」していく
-      el.value = ''; // 既存値をクリア
-      for (const ch of val) insertChar(el, ch);
-      
-      // 値確定 (change イベント)
-      el.dispatchEvent(new Event('change', { bubbles: true }));
-      
-    } else if (tagName === 'select') {
-      // select の場合: 先頭一致で選択
-      selectByPrefix(el, val);
+    return await new Promise(resolve => {
+      let done = false;
+      const finish = () => { if (!done) { done = true; observer?.disconnect(); resolve(); } };
+
+      const observer = new MutationObserver(() => {
+        const stamp = performance.now();
+        if (stamp - start > timeoutMs) finish();
+        Promise.resolve()
+          .then(() => new Promise(requestAnimationFrame))
+          .then(finish);
+      });
+
+      observer.observe(selectEl, { childList: true, subtree: true });
+
+      setTimeout(finish, timeoutMs);
+
+      if (selectEl.options.length === initialLen) {
+        setTimeout(finish, 30);
+      }
+    });
+  };
+
+  /* --- select: 高精度選択（任意遅延に対応） --------------------- */
+  const selectByPrefix = async (selectEl, rawInput, opts = {}) => {
+    const {
+      valueFirst = true,
+      allowContainsFallback = true,
+      verifyAndRetry = true,
+      waitOptions = false,
+      delayMs = config.delayMs      // 個別オーバーライド可能
+    } = opts;
+
+    if (!rawInput) return;
+
+    if (waitOptions) {
+      await waitForOptionsStable(selectEl).catch(() => { });
     }
 
-    // 最後の値でなければ TAB で次フィールドへ
-    if (idx < values.length - 1) pressTab(el);
-  });
+    // 選択前に任意遅延（UI側のフィルタや検証待ちに有用）
+    await sleep(delayMs);
+
+    const input = normalize(rawInput);
+
+    const items = Array.from(selectEl.options).map(o => ({
+      option: o,
+      nText: normalize(o.text),
+      nValue: normalize(o.value)
+    }));
+
+    const pick = (keys) => {
+      // 厳密一致
+      for (const k of keys) {
+        const hit = items.find(it => it[k] === input);
+        if (hit) return hit.option;
+      }
+      // 前方一致
+      for (const k of keys) {
+        const hit = items.find(it => it[k].startsWith(input));
+        if (hit) return hit.option;
+      }
+      // 部分一致
+      if (allowContainsFallback) {
+        for (const k of keys) {
+          const candidates = items.filter(it => it[k].includes(input));
+          if (candidates.length === 1) return candidates[0].option;
+          if (candidates.length > 1) {
+            candidates.sort((a, b) => a.nText.length - b.nText.length);
+            return candidates[0].option;
+          }
+        }
+      }
+      return null;
+    };
+
+    const keysOrder = valueFirst ? ['nValue', 'nText'] : ['nText', 'nValue'];
+    const matched = pick(keysOrder);
+    if (!matched) {
+      console.warn('No option matched for input:', rawInput);
+      return;
+    }
+
+    const applyValue = (opt) => {
+      selectEl.value = opt.value;
+      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    applyValue(matched);
+
+    // 設定後に任意遅延＋検証（UI側が上書きするケース対策）
+    await sleep(delayMs);
+
+    if (verifyAndRetry) {
+      // 次tickでも確認
+      await new Promise(r => setTimeout(r, 0));
+      if (selectEl.value !== matched.value) {
+        applyValue(matched);
+        await new Promise(r => setTimeout(r, 0));
+        await sleep(delayMs);
+      }
+    }
+  };
+
+  /* --- ターゲット解決: 現在/次要素 ------------------------------- */
+  const resolveCurrentElement = () => {
+    allElements = getAllElements();
+    const active = document.activeElement;
+    const idx = allElements.indexOf(active);
+    if (idx === -1) return allElements[0] ?? null;
+    return allElements[idx];
+  };
+
+  const resolveNextElement = () => {
+    allElements = getAllElements(); // 最新に更新
+    const active = document.activeElement;
+    const idx = allElements.indexOf(active);
+    if (idx === -1) {
+      return allElements[0] ?? null;
+    }
+    return allElements[idx + 1] ?? null;
+  };
+
+  /* --- メインループ ---------------------------------------------- */
+
+  for (let i = 0; i < values.length; i++) {
+    // 現在要素を解決
+    let el = resolveCurrentElement();
+    if (!el) break;
+
+    const val = values[i];
+    console.log(`Processing ${i}: ${el.tagName.toLowerCase()} with value "${val}"`);
+
+    // フォーカスを確実に当てる
+    el.focus();
+    await waitForRender();
+
+    const tag = el.tagName.toLowerCase();
+
+    if (tag === 'input' || tag === 'textarea') {
+      el.value = '';
+      for (const ch of val) insertChar(el, ch);
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+      await waitForRender();
+    } else if (tag === 'select') {
+      await selectByPrefix(el, val, {
+        ...config.select,
+        delayMs: config.delayMs
+      });
+      await waitForRender();
+    }
+
+    // ===== ここが追加ポイント：次要素が無いなら終了 =====
+    // DOMが動的に変わる可能性があるため、入力後に最新DOM基準で判定する
+    const nextEl = resolveNextElement(); // null なら「最後に到達」
+    if (!nextEl) {
+      console.log('Reached last destination element. Stop processing even if clipboard values remain.');
+      break;
+    }
+
+    // 最後の値でなければ次へ進む
+    if (i < values.length - 1) {
+      // 1) まずは Tab を試す
+      pressTab(el);
+      await waitForRender();
+
+      // 2) 任意遅延（フォーカス移動・検証表示などの安定化）
+      await sleep(config.delayMs);
+
+      // 3) フォーカスが移っていなければ、明示的に次要素へフォーカス
+      const before = el;
+      const after = document.activeElement;
+      if (after === before) {
+        nextEl.focus();
+        await waitForRender();
+        await sleep(config.delayMs);
+      }
+
+      // 次ループで resolveCurrentElement() が最新フォーカスを基準に再評価
+    }
+  }
+
 })();
