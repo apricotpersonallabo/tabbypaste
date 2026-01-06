@@ -1,0 +1,32 @@
+{
+    "extName": {
+        "message": "Tabby Paste"
+    },
+    "extDescription": {
+        "message": "クリップボード内のタブ区切りテキストを順にフォームへ貼り付けます。"
+    },
+    "contextMenuTitle": {
+        "message": "Tabby Paste"
+    },
+    "openPopup": {
+        "message": "ポップアップを開く"
+    },
+    "command_auto_paste": {
+        "message": "Tabby Paste"
+    },
+    "userManual": {
+        "message": "ユーザーマニュアル"
+    },
+    "clipboardReadFailed": {
+        "message": "クリップボードの読み取りに失敗しました。"
+    },
+    "clipboardNoText": {
+        "message": "クリップボードにテキストがありません。"
+    },
+    "noInputFields": {
+        "message": "入力フィールド (<input type=\"text\">, <select>, <textarea>) が見つかりませんでした。"
+    },
+    "focusInputField": {
+        "message": "入力フィールドにフォーカスしてください。"
+    }
+}

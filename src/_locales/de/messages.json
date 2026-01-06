@@ -1,0 +1,32 @@
+{
+    "extName": {
+        "message": "Tabby Paste"
+    },
+    "extDescription": {
+        "message": "Zwischen Tabulatoren getrennte Textwerte aus der Zwischenablage nacheinander in Formularfelder einfügen."
+    },
+    "contextMenuTitle": {
+        "message": "Tabby Paste"
+    },
+    "openPopup": {
+        "message": "Popup öffnen"
+    },
+    "command_auto_paste": {
+        "message": "Tabby Paste"
+    },
+    "userManual": {
+        "message": "Benutzerhandbuch"
+    },
+    "clipboardReadFailed": {
+        "message": "Fehler beim Lesen der Zwischenablage."
+    },
+    "clipboardNoText": {
+        "message": "Keine Textdaten in der Zwischenablage gefunden."
+    },
+    "noInputFields": {
+        "message": "Keine Eingabefelder (<input type=\"text\">, <select>, <textarea>) auf der Seite gefunden."
+    },
+    "focusInputField": {
+        "message": "Bitte fokussieren Sie zuerst ein Eingabefeld."
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "extName": {
+        "message": "Tabby Paste"
+    },
+    "extDescription": {
+        "message": "将剪贴板中以制表符分隔的文本值依次粘贴到表单字段中。"
+    },
+    "contextMenuTitle": {
+        "message": "Tabby Paste"
+    },
+    "openPopup": {
+        "message": "打开弹出窗口"
+    },
+    "command_auto_paste": {
+        "message": "Tabby Paste"
+    },
+    "userManual": {
+        "message": "使用手册"
+    },
+    "clipboardReadFailed": {
+        "message": "读取剪贴板失败。"
+    },
+    "clipboardNoText": {
+        "message": "剪贴板中未发现文本。"
+    },
+    "noInputFields": {
+        "message": "页面上未找到输入字段 (<input type=\"text\">, <select>, <textarea>)。"
+    },
+    "focusInputField": {
+        "message": "请先将焦点放到输入字段。"
+    }
+}

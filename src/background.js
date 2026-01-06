@@ -1,13 +1,13 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
-    id: 'Tabby Paste',
-    title: 'Tabby Paste',
+    id: 'tabbypaste',
+    title: chrome.i18n.getMessage('contextMenuTitle'),
     contexts: ['all']
   });
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId !== 'Tabby Paste' || !tab?.id) return;
+  if (info.menuItemId !== 'tabbypaste' || !tab?.id) return;
 
   try {
     await chrome.scripting.executeScript({

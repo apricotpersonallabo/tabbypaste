@@ -1,0 +1,32 @@
+{
+    "extName": {
+        "message": "Tabby Paste"
+    },
+    "extDescription": {
+        "message": "클립보드의 탭으로 구분된 텍스트 값을 순서대로 폼 필드에 붙여넣습니다."
+    },
+    "contextMenuTitle": {
+        "message": "Tabby Paste"
+    },
+    "openPopup": {
+        "message": "팝업 열기"
+    },
+    "command_auto_paste": {
+        "message": "Tabby Paste"
+    },
+    "userManual": {
+        "message": "사용자 설명서"
+    },
+    "clipboardReadFailed": {
+        "message": "클립보드 읽기 실패."
+    },
+    "clipboardNoText": {
+        "message": "클립보드에 텍스트가 없습니다."
+    },
+    "noInputFields": {
+        "message": "페이지에서 입력 필드 (<input type=\"text\">, <select>, <textarea>) 를 찾을 수 없습니다."
+    },
+    "focusInputField": {
+        "message": "먼저 입력 필드에 포커스하세요."
+    }
+}

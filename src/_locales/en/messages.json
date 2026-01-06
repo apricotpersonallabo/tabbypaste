@@ -1,0 +1,32 @@
+{
+    "extName": {
+        "message": "Tabby Paste"
+    },
+    "extDescription": {
+        "message": "Paste tab-separated clipboard values into successive form fields."
+    },
+    "contextMenuTitle": {
+        "message": "Tabby Paste"
+    },
+    "openPopup": {
+        "message": "Open Popup"
+    },
+    "command_auto_paste": {
+        "message": "Tabby Paste"
+    },
+    "userManual": {
+        "message": "User manual"
+    },
+    "clipboardReadFailed": {
+        "message": "Failed to read clipboard."
+    },
+    "clipboardNoText": {
+        "message": "No text found in clipboard."
+    },
+    "noInputFields": {
+        "message": "No input fields (<input type=\"text\">, <select>, <textarea>) were found on the page."
+    },
+    "focusInputField": {
+        "message": "Please focus an input field first."
+    }
+}

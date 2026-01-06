@@ -1,14 +1,3 @@
-/**
- * Tab-Paster  filler.js  (KeyboardEvent 版・遅延設定対応版)
- *
- * 改善点:
- * - ループ毎に最新DOMから allElements を再取得
- * - フォーカス・入力・選択・Tab移動で描画待ちを挟み、さらに任意遅延 delayMs を反映
- * - Tab送出後にフォーカスが移らなければ明示的に次要素へ focus()
- * - selectの一致精度向上（正規化＋厳密→前方→部分一致、value/text優先切替、再適用）
- * - 任意の遅延時間を設定できる config.delayMs を追加
- */
-
 (async () => {
   /* --- 設定 ------------------------------------------------------ */
   const config = {
@@ -30,12 +19,12 @@
     raw = await navigator.clipboard.readText();
   } catch (e) {
     console.error('Clipboard read failed:', e);
-    alert('クリップボードの読み取りに失敗しました。');
+    alert(chrome.i18n.getMessage('clipboardReadFailed'));
     return;
   }
 
   if (!raw) {
-    alert('クリップボードにテキストがありません。');
+    alert(chrome.i18n.getMessage('clipboardNoText'));
     return;
   }
 
@@ -64,11 +53,11 @@
   /* 初回チェック */
   let allElements = getAllElements();
   if (!allElements.length) {
-    alert('入力フィールド (<input type="text">, <select>, <textarea>) が見つかりませんでした。');
+    alert(chrome.i18n.getMessage('noInputFields'));
     return;
   }
   if (allElements.indexOf(document.activeElement) === -1) {
-    alert('入力フィールドにフォーカスしてください。');
+    alert(chrome.i18n.getMessage('focusInputField'));
     return;
   }
 

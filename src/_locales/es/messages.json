@@ -1,0 +1,32 @@
+{
+    "extName": {
+        "message": "Tabby Paste"
+    },
+    "extDescription": {
+        "message": "Pega valores separados por tabulaciones desde el portapapeles en campos de formulario sucesivos."
+    },
+    "contextMenuTitle": {
+        "message": "Tabby Paste"
+    },
+    "openPopup": {
+        "message": "Abrir popup"
+    },
+    "command_auto_paste": {
+        "message": "Tabby Paste"
+    },
+    "userManual": {
+        "message": "Manual de usuario"
+    },
+    "clipboardReadFailed": {
+        "message": "Error al leer el portapapeles."
+    },
+    "clipboardNoText": {
+        "message": "No se encontró texto en el portapapeles."
+    },
+    "noInputFields": {
+        "message": "No se encontraron campos de entrada (<input type=\"text\">, <select>, <textarea>) en la página."
+    },
+    "focusInputField": {
+        "message": "Por favor, enfoque primero un campo de entrada."
+    }
+}
