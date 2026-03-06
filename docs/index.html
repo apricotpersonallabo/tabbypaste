@@ -3,167 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabby Paste User manual</title>
+    <title>Tabby Paste - Chrome Extension</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 16px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        h1, h2 {
-            margin-bottom: 12px;
+        :root {
+            --gray-light: #f2f2f2;
+            --gray-border: #ccc;
+            --gray-dark: #333;
+            --blue-link: #0366d6;
+            --blue-bg: #f0f7ff;
+            --green-accent: #28a745;
+            --bg-hover: #eef;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #fff;
+            line-height: 1.6;
         }
 
         /* Header */
         header {
+            background-color: #f5f5f5;
+            border-bottom: 1px solid var(--gray-border);
+            padding: 16px;
             margin-bottom: 24px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ddd;
-            font-size: 14px;
         }
 
-        header a {
-            color: #0366d6;
-            text-decoration: none;
-            word-break: break-all;
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        header a:hover {
-            text-decoration: underline;
-        }
-
-        .manual {
-            margin-bottom: 32px;
-        }
-
-        .manual-images {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-        }
-
-        .manual-images img {
-            width: 100%;
-            height: auto;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        /* Form */
-        .form-container {
-            max-width: 500px;
-            margin-bottom: 32px;
-        }
-
-        .form-group {
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 12px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 4px;
+        .logo {
+            font-size: 24px;
             font-weight: bold;
+            color: #333;
         }
 
-        input, select {
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
+        .logo a {
+            color: #333;
+            text-decoration: none;
         }
 
-        /* Table */
-        .table-wrapper {
-            overflow-x: auto;
-            margin-top: 20px;
+        .logo a:hover {
+            color: var(--blue-link);
         }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 600px;
+        .lang-switcher {
+            display: flex;
+            gap: 8px;
         }
 
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px 10px;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        tbody tr {
+        .lang-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--gray-border);
+            background-color: white;
+            border-radius: 4px;
             cursor: pointer;
-        }
-
-        tbody tr:hover {
-            background-color: #eef;
-        }
-
-        /* Toast */
-        #toast {
-            visibility: hidden;
-            min-width: 200px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 12px 16px;
-            border-radius: 6px;
-            position: fixed;
-            left: 50%;
-            bottom: 20px;
-            transform: translateX(-50%);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease, visibility 0.3s;
             font-size: 14px;
+            transition: all 0.2s;
         }
 
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
+        .lang-btn.active {
+            background-color: var(--blue-link);
+            color: white;
+            border-color: var(--blue-link);
         }
 
-        /* Lightbox */
-        #lightbox {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+        .lang-btn:hover {
+            border-color: var(--blue-link);
         }
 
-        #lightbox img {
-            max-width: 90%;
-            max-height: 90%;
+        /* Breadcrumb */
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: var(--blue-link);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            margin: 0 4px;
+        }
+
+        /* Main content */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            margin-top: 32px;
+            color: #333;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 48px 16px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            color: white;
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            margin-bottom: 24px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background-color: white;
+            color: #667eea;
+            padding: 12px 24px;
             border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
         }
 
-        #lightbox .close {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            font-size: 28px;
-            color: #fff;
-            cursor: pointer;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Features Grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background-color: var(--blue-bg);
+            border: 1px solid var(--gray-border);
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--blue-link);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+            margin-top: 0;
+        }
+
+        .feature-card p {
+            color: #666;
+        }
+
+        /* How it works */
+        .how-it-works {
+            background-color: var(--gray-light);
+            padding: 32px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .step {
+            background-color: white;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid var(--blue-link);
+        }
+
+        .step-number {
+            display: inline-block;
+            background-color: var(--blue-link);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        /* Links */
+        a {
+            color: var(--blue-link);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #f5f5f5;
+            border-top: 1px solid var(--gray-border);
+            padding: 24px 16px;
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        footer a {
+            color: var(--blue-link);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .hero {
+                padding: 32px 16px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            main {
+                padding: 0 16px;
+            }
         }
 
         @media (min-width: 768px) {
-            body {
-                margin: 40px;
+            main {
+                padding: 0 40px;
             }
 
-            #toast {
-                left: auto;
-                right: 30px;
-                transform: none;
+            .hero {
+                padding: 64px 40px;
             }
         }
     </style>
@@ -171,139 +324,205 @@
 <body>
 
 <header>
-    Repository:
-    <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener">
-        https://github.com/apricotpersonallabo/tabbypaste
-    </a>
+    <div class="header-content">
+        <div class="header-top">
+            <div class="logo">
+                <a href="index.html" data-i18n="header.title">Tabby Paste</a>
+            </div>
+            <div class="lang-switcher">
+                <button class="lang-btn active" data-lang="ja">日本語</button>
+                <button class="lang-btn" data-lang="en">English</button>
+            </div>
+        </div>
+        <div class="breadcrumb">
+            <span data-i18n="breadcrumb.home">Home</span>
+        </div>
+    </div>
 </header>
 
-<h1>Tabby Paste User manual</h1>
+<main>
+    <section class="hero">
+        <h1 data-i18n="home.title">Tabby Paste</h1>
+        <p data-i18n="home.subtitle">Copy and paste data efficiently from web pages with Tabby Paste extension</p>
+        <a href="manual.html" class="btn-primary" data-i18n="home.getStarted">Get Started</a>
+    </section>
 
-<section class="manual">
-    <h2>Screenshots</h2>
+    <h2 data-i18n="home.aboutTitle">About Tabby Paste</h2>
+    <p data-i18n="home.aboutDescription">
+        Tabby Paste is a lightweight Chrome extension that helps you copy and paste data efficiently between web pages and applications. Whether you're working with tables, forms, or structured data, Tabby Paste makes the process seamless and intuitive.
+    </p>
 
-    <div class="manual-images">
-        <img src="assets/images/1.png" alt="Step 1" onclick="openLightbox(this)">
-        <img src="assets/images/2.png" alt="Step 2" onclick="openLightbox(this)">
-        <img src="assets/images/3.png" alt="Step 3" onclick="openLightbox(this)">
-        <img src="assets/images/4.png" alt="Step 4" onclick="openLightbox(this)">
-        <img src="assets/images/5.png" alt="Step 5" onclick="openLightbox(this)">
-    </div>
-</section>
-
-<!-- Form -->
-<hr />
-<div class="form-container">
-    <h2>Sample Form</h2>
-    <p><b>Tabby Paste! Paste sample data here!</b></p>
-    <form>
-        <div class="form-group">
-            <label>Employee ID</label>
-            <input type="text">
+    <section class="features">
+        <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3 data-i18n="home.feature1Title">Easy Data Copy</h3>
+            <p data-i18n="home.feature1Desc">Click any row in a table to copy data in TSV format, ready to paste into spreadsheets and forms.</p>
         </div>
-        <div class="form-group">
-            <label>Employee Name</label>
-            <input type="text">
-        </div>
-        <div class="form-group">
-            <label>Department Name</label>
-            <input type="text">
-        </div>
-        <div class="form-group">
-            <label>Status</label>
-            <select>
-                <option value="" selected>-- Select --</option>
-                <option>Active</option>
-                <option>Inactive</option>
-            </select>
-        </div>
-    </form>
-</div>
 
-<!-- Sample Data -->
-<hr />
-<h2>Sample Data</h2>
-<div class="table-wrapper">
-    <table>
-        <thead>
-            <tr>
-                <th>Employee ID</th>
-                <th>Employee Name</th>
-                <th>Department Name</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr onclick="copyRow(this)">
-                <td>E001</td><td>John Smith</td><td>Sales</td><td>Active</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E002</td><td>Emily Johnson</td><td>Human Resources</td><td>Active</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E003</td><td>Michael Brown</td><td>Engineering</td><td>Active</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E004</td><td>Sarah Davis</td><td>Marketing</td><td>Inactive</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E005</td><td>David Wilson</td><td>Finance</td><td>Active</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E006</td><td>Laura Martinez</td><td>Customer Support</td><td>Active</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E007</td><td>Robert Anderson</td><td>Engineering</td><td>Inactive</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E008</td><td>Jessica Taylor</td><td>Legal</td><td>Active</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E009</td><td>Daniel Thomas</td><td>Operations</td><td>Active</td>
-            </tr>
-            <tr onclick="copyRow(this)">
-                <td>E010</td><td>Amanda Moore</td><td>Research Development</td><td>Inactive</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 data-i18n="home.feature2Title">Lightweight & Fast</h3>
+            <p data-i18n="home.feature2Desc">No external dependencies or heavy libraries. Pure JavaScript for lightning-fast performance.</p>
+        </div>
 
-<div id="toast">Copied to clipboard</div>
+        <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <h3 data-i18n="home.feature3Title">Simple Interface</h3>
+            <p data-i18n="home.feature3Desc">Intuitive design that works with any website. Just click on the data you want to copy.</p>
+        </div>
+    </section>
 
-<!-- Lightbox -->
-<div id="lightbox" onclick="closeLightbox()">
-    <span class="close">&times;</span>
-    <img id="lightbox-img" src="" alt="">
-</div>
+    <section class="how-it-works">
+        <h2 data-i18n="home.howItWorks">How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3 data-i18n="home.step1Title">Install</h3>
+                <p data-i18n="home.step1Desc">Add Tabby Paste to your Chrome browser from the Chrome Web Store.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3 data-i18n="home.step2Title">Use</h3>
+                <p data-i18n="home.step2Desc">Click on any table row or data element to automatically copy it in TSV format.</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3 data-i18n="home.step3Title">Paste</h3>
+                <p data-i18n="home.step3Desc">Paste the copied data into your spreadsheet, form, or any other application.</p>
+            </div>
+        </div>
+    </section>
+
+    <h2 data-i18n="home.supportedLanguages">Supported Languages</h2>
+    <p data-i18n="home.languagesDesc">Tabby Paste supports multiple languages for better accessibility:</p>
+    <ul style="margin-bottom: 40px; margin-left: 20px;">
+        <li>Japanese (日本語)</li>
+        <li>English</li>
+        <li>German (Deutsch)</li>
+        <li>Spanish (Español)</li>
+        <li>Korean (한국어)</li>
+        <li>Simplified Chinese (简体中文)</li>
+        <li>Traditional Chinese (繁体中文)</li>
+    </ul>
+
+    <h2 data-i18n="home.learnMore">Learn More</h2>
+    <p>
+        <a href="manual.html" data-i18n="home.viewManual">View the User Manual</a> <span data-i18n="home.forMore">for detailed information on how to use Tabby Paste and explore its features.</span>
+    </p>
+
+    <p style="margin-top: 24px;">
+        <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener" data-i18n="home.viewSource">View the source code on GitHub</a>
+    </p>
+</main>
+
+<footer>
+    <p>&copy; 2024-2025 <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener">Tabby Paste</a>. All rights reserved.</p>
+</footer>
 
 <script>
-let toastTimer;
+// i18n translations
+const translations = {
+    ja: {
+        'header.title': 'Tabby Paste',
+        'breadcrumb.home': 'ホーム',
+        'home.title': 'Tabby Paste',
+        'home.subtitle': 'Webページからのデータのコピーと貼り付けを効率的に行うChrome拡張機能',
+        'home.getStarted': '始める',
+        'home.aboutTitle': 'Tabby Pasteについて',
+        'home.aboutDescription': 'Tabby PasteはWebページとアプリケーション間でデータを効率的にコピーして貼り付けるのに役立つ軽量なChrome拡張機能です。テーブル、フォーム、構造化されたデータを操作している場合でも、Tabby Pasteはプロセスをシームレスで直感的にします。',
+        'home.feature1Title': '簡単なデータコピー',
+        'home.feature1Desc': 'テーブル内の任意の行をクリックしてTSV形式でデータをコピーし、スプレッドシートやフォームに貼り付ける準備ができます。',
+        'home.feature2Title': '軽量で高速',
+        'home.feature2Desc': '外部依存関係や重いライブラリはありません。純粋なJavaScriptで高速のパフォーマンスを実現します。',
+        'home.feature3Title': 'シンプルなインターフェース',
+        'home.feature3Desc': 'どのWebサイトでも動作する直感的なデザイン。コピーしたいデータをクリックするだけです。',
+        'home.howItWorks': '使い方',
+        'home.step1Title': 'インストール',
+        'home.step1Desc': 'Chrome Web StoreからTabby PasteをChromeブラウザに追加します。',
+        'home.step2Title': '使用',
+        'home.step2Desc': 'テーブル行またはデータ要素をクリックして、自動的にTSV形式でコピーします。',
+        'home.step3Title': '貼り付け',
+        'home.step3Desc': 'コピーしたデータをスプレッドシート、フォーム、または他のアプリケーションに貼り付けます。',
+        'home.supportedLanguages': 'サポートされている言語',
+        'home.languagesDesc': 'Tabby Pasteはアクセシビリティを向上させるために複数の言語をサポートしています：',
+        'home.learnMore': 'さらに詳しく',
+        'home.viewManual': 'ユーザーマニュアルを表示',
+        'home.forMore': 'Tabby Pasteの使用方法と機能の詳細情報をご覧ください。',
+        'home.viewSource': 'GitHubでソースコードを表示'
+    },
+    en: {
+        'header.title': 'Tabby Paste',
+        'breadcrumb.home': 'Home',
+        'home.title': 'Tabby Paste',
+        'home.subtitle': 'Copy and paste data efficiently from web pages with Tabby Paste extension',
+        'home.getStarted': 'Get Started',
+        'home.aboutTitle': 'About Tabby Paste',
+        'home.aboutDescription': 'Tabby Paste is a lightweight Chrome extension that helps you copy and paste data efficiently between web pages and applications. Whether you\'re working with tables, forms, or structured data, Tabby Paste makes the process seamless and intuitive.',
+        'home.feature1Title': 'Easy Data Copy',
+        'home.feature1Desc': 'Click any row in a table to copy data in TSV format, ready to paste into spreadsheets and forms.',
+        'home.feature2Title': 'Lightweight & Fast',
+        'home.feature2Desc': 'No external dependencies or heavy libraries. Pure JavaScript for lightning-fast performance.',
+        'home.feature3Title': 'Simple Interface',
+        'home.feature3Desc': 'Intuitive design that works with any website. Just click on the data you want to copy.',
+        'home.howItWorks': 'How It Works',
+        'home.step1Title': 'Install',
+        'home.step1Desc': 'Add Tabby Paste to your Chrome browser from the Chrome Web Store.',
+        'home.step2Title': 'Use',
+        'home.step2Desc': 'Click on any table row or data element to automatically copy it in TSV format.',
+        'home.step3Title': 'Paste',
+        'home.step3Desc': 'Paste the copied data into your spreadsheet, form, or any other application.',
+        'home.supportedLanguages': 'Supported Languages',
+        'home.languagesDesc': 'Tabby Paste supports multiple languages for better accessibility:',
+        'home.learnMore': 'Learn More',
+        'home.viewManual': 'View the User Manual',
+        'home.forMore': 'for detailed information on how to use Tabby Paste and explore its features.',
+        'home.viewSource': 'View the source code on GitHub'
+    }
+};
 
-function copyRow(row) {
-    const tsv = Array.from(row.querySelectorAll("td"))
-        .map(td => td.innerText)
-        .join("\t");
+// Get current language from localStorage or default
+let currentLang = localStorage.getItem('lang') || 'ja';
 
-    navigator.clipboard.writeText(tsv).then(showToast);
+// Initialize language
+function initializeLanguage() {
+    // Set HTML lang attribute
+    document.documentElement.lang = currentLang;
+    
+    // Update active button
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.lang === currentLang) {
+            btn.classList.add('active');
+        }
+    });
+    
+    updateTranslations();
 }
 
-function showToast() {
-    const toast = document.getElementById("toast");
-    toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 1500);
+// Update all translations on page
+function updateTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(elem => {
+        const key = elem.dataset.i18n;
+        const translation = translations[currentLang][key];
+        if (translation) {
+            elem.textContent = translation;
+        }
+    });
 }
 
-function openLightbox(img) {
-    document.getElementById("lightbox-img").src = img.src;
-    document.getElementById("lightbox").style.display = "flex";
-}
+// Language switcher
+document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        currentLang = e.target.dataset.lang;
+        localStorage.setItem('lang', currentLang);
+        initializeLanguage();
+    });
+});
 
-function closeLightbox() {
-    document.getElementById("lightbox").style.display = "none";
-}
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initializeLanguage);
 </script>
 
 </body>
