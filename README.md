@@ -14,4 +14,4 @@ https://microsoftedge.microsoft.com/addons/detail/tabby-paste/gjkopcpoddbifofepj
 
 ## User manual
 You can see the user manual in this repository.
-https://github.com/apricotpersonallabo/tabbypaste/wiki
+https://apricotpersonallabo.github.io/tabbypaste/
