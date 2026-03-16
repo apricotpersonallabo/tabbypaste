@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -330,8 +330,8 @@
                 <a href="index.html" data-i18n="header.title">Tabby Paste</a>
             </div>
             <div class="lang-switcher">
-                <button class="lang-btn active" data-lang="ja">日本語</button>
-                <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="ja">日本語</button>
+                <button class="lang-btn active" data-lang="en">English</button>
             </div>
         </div>
         <div class="breadcrumb">
@@ -483,7 +483,7 @@ const translations = {
 };
 
 // Get current language from localStorage or default
-let currentLang = localStorage.getItem('lang') || 'ja';
+let currentLang = localStorage.getItem('lang') || 'en';
 
 // Initialize language
 function initializeLanguage() {
