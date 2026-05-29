@@ -1,15 +1,30 @@
 (async () => {
   /* --- 設定 ------------------------------------------------------ */
-  const config = {
-    // 任意の遅延ミリ秒。0なら遅延なし。例: 50, 100, 200 等
+  const defaultSettings = {
     delayMs: 0,
+    selectValueFirst: true,
+    selectAllowContainsFallback: true,
+    selectVerifyAndRetry: true,
+    selectWaitOptions: true
+  };
 
-    // selectの検索挙動
+  const loadSettings = async () => {
+    try {
+      return await chrome.storage.sync.get(defaultSettings);
+    } catch (e) {
+      console.warn('Failed to load settings. Falling back to defaults:', e);
+      return defaultSettings;
+    }
+  };
+
+  const settings = await loadSettings();
+  const config = {
+    delayMs: Math.max(0, Number(settings.delayMs) || 0),
     select: {
-      valueFirst: true,            // true: value→text の順で検索
-      allowContainsFallback: true, // 前方一致でだめなら部分一致へ
-      verifyAndRetry: true,        // 設定直後の値が上書きされたら再適用
-      waitOptions: true           // 遅延描画が疑われるUIなら true に
+      valueFirst: settings.selectValueFirst !== false,
+      allowContainsFallback: settings.selectAllowContainsFallback !== false,
+      verifyAndRetry: settings.selectVerifyAndRetry !== false,
+      waitOptions: settings.selectWaitOptions !== false
     }
   };
 

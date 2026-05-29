@@ -28,5 +28,41 @@
     },
     "focusInputField": {
         "message": "Please focus an input field first."
+    },
+    "optionsTitle": {
+        "message": "Settings"
+    },
+    "optionsGeneral": {
+        "message": "General"
+    },
+    "optionsDelayMs": {
+        "message": "Delay after each operation (ms)"
+    },
+    "optionsSelect": {
+        "message": "Select fields"
+    },
+    "optionsSelectValueFirst": {
+        "message": "Search option values before visible text"
+    },
+    "optionsSelectContains": {
+        "message": "Allow contains match when exact/prefix match fails"
+    },
+    "optionsSelectRetry": {
+        "message": "Retry if the selected value is overwritten"
+    },
+    "optionsSelectWait": {
+        "message": "Wait briefly for dynamically rendered options"
+    },
+    "optionsSave": {
+        "message": "Save"
+    },
+    "optionsReset": {
+        "message": "Reset"
+    },
+    "optionsSaved": {
+        "message": "Saved."
+    },
+    "optionsResetDone": {
+        "message": "Reset to defaults."
     }
 }

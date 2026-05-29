@@ -17,6 +17,10 @@
     "default_popup": "popup.html",
     "default_title": "__MSG_openPopup__"
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
   "background": {
     "service_worker": "background.js",
     "type": "module"
@@ -25,7 +29,8 @@
     "activeTab",
     "scripting",
     "contextMenus",
-    "clipboardRead"
+    "clipboardRead",
+    "storage"
   ],
   "commands": {
     "auto_paste": {

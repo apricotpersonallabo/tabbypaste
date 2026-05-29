@@ -28,5 +28,41 @@
     },
     "focusInputField": {
         "message": "Por favor, enfoque primero un campo de entrada."
+    },
+    "optionsTitle": {
+        "message": "Configuración"
+    },
+    "optionsGeneral": {
+        "message": "General"
+    },
+    "optionsDelayMs": {
+        "message": "Retraso después de cada operación (ms)"
+    },
+    "optionsSelect": {
+        "message": "Campos select"
+    },
+    "optionsSelectValueFirst": {
+        "message": "Buscar valores de opción antes del texto visible"
+    },
+    "optionsSelectContains": {
+        "message": "Permitir coincidencia parcial si falla exacta/prefijo"
+    },
+    "optionsSelectRetry": {
+        "message": "Reintentar si se sobrescribe el valor seleccionado"
+    },
+    "optionsSelectWait": {
+        "message": "Esperar brevemente opciones renderizadas dinámicamente"
+    },
+    "optionsSave": {
+        "message": "Guardar"
+    },
+    "optionsReset": {
+        "message": "Restablecer"
+    },
+    "optionsSaved": {
+        "message": "Guardado."
+    },
+    "optionsResetDone": {
+        "message": "Restablecido a los valores predeterminados."
     }
 }

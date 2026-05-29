@@ -28,5 +28,41 @@
     },
     "focusInputField": {
         "message": "请先将焦点放到输入字段。"
+    },
+    "optionsTitle": {
+        "message": "设置"
+    },
+    "optionsGeneral": {
+        "message": "常规"
+    },
+    "optionsDelayMs": {
+        "message": "每次操作后的延迟时间 (ms)"
+    },
+    "optionsSelect": {
+        "message": "下拉选择框"
+    },
+    "optionsSelectValueFirst": {
+        "message": "先搜索 option 值，再搜索可见文本"
+    },
+    "optionsSelectContains": {
+        "message": "精确/前缀匹配失败时允许包含匹配"
+    },
+    "optionsSelectRetry": {
+        "message": "如果所选值被覆盖则重试"
+    },
+    "optionsSelectWait": {
+        "message": "短暂等待动态渲染的选项"
+    },
+    "optionsSave": {
+        "message": "保存"
+    },
+    "optionsReset": {
+        "message": "重置"
+    },
+    "optionsSaved": {
+        "message": "已保存。"
+    },
+    "optionsResetDone": {
+        "message": "已重置为默认值。"
     }
 }

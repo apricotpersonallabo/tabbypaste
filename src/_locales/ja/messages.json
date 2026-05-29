@@ -28,5 +28,41 @@
     },
     "focusInputField": {
         "message": "入力フィールドにフォーカスしてください。"
+    },
+    "optionsTitle": {
+        "message": "設定"
+    },
+    "optionsGeneral": {
+        "message": "一般"
+    },
+    "optionsDelayMs": {
+        "message": "各操作後の待機時間 (ms)"
+    },
+    "optionsSelect": {
+        "message": "セレクトボックス"
+    },
+    "optionsSelectValueFirst": {
+        "message": "表示テキストより先に option の value を検索する"
+    },
+    "optionsSelectContains": {
+        "message": "完全一致・前方一致で見つからない場合に部分一致を許可する"
+    },
+    "optionsSelectRetry": {
+        "message": "選択値が上書きされた場合に再適用する"
+    },
+    "optionsSelectWait": {
+        "message": "動的に描画される選択肢を短時間待つ"
+    },
+    "optionsSave": {
+        "message": "保存"
+    },
+    "optionsReset": {
+        "message": "初期値に戻す"
+    },
+    "optionsSaved": {
+        "message": "保存しました。"
+    },
+    "optionsResetDone": {
+        "message": "初期値に戻しました。"
     }
 }

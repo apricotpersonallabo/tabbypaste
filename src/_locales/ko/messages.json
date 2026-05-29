@@ -28,5 +28,41 @@
     },
     "focusInputField": {
         "message": "먼저 입력 필드에 포커스하세요."
+    },
+    "optionsTitle": {
+        "message": "설정"
+    },
+    "optionsGeneral": {
+        "message": "일반"
+    },
+    "optionsDelayMs": {
+        "message": "각 작업 후 지연 시간 (ms)"
+    },
+    "optionsSelect": {
+        "message": "선택 필드"
+    },
+    "optionsSelectValueFirst": {
+        "message": "표시 텍스트보다 option 값을 먼저 검색"
+    },
+    "optionsSelectContains": {
+        "message": "정확/접두사 일치 실패 시 부분 일치 허용"
+    },
+    "optionsSelectRetry": {
+        "message": "선택 값이 덮어써지면 다시 적용"
+    },
+    "optionsSelectWait": {
+        "message": "동적으로 렌더링되는 옵션을 잠시 기다림"
+    },
+    "optionsSave": {
+        "message": "저장"
+    },
+    "optionsReset": {
+        "message": "초기화"
+    },
+    "optionsSaved": {
+        "message": "저장했습니다."
+    },
+    "optionsResetDone": {
+        "message": "기본값으로 초기화했습니다."
     }
 }

@@ -28,5 +28,41 @@
     },
     "focusInputField": {
         "message": "Bitte fokussieren Sie zuerst ein Eingabefeld."
+    },
+    "optionsTitle": {
+        "message": "Einstellungen"
+    },
+    "optionsGeneral": {
+        "message": "Allgemein"
+    },
+    "optionsDelayMs": {
+        "message": "Verzögerung nach jedem Vorgang (ms)"
+    },
+    "optionsSelect": {
+        "message": "Auswahlfelder"
+    },
+    "optionsSelectValueFirst": {
+        "message": "Optionswerte vor sichtbarem Text durchsuchen"
+    },
+    "optionsSelectContains": {
+        "message": "Teiltreffer erlauben, wenn exakte/Präfix-Treffer fehlschlagen"
+    },
+    "optionsSelectRetry": {
+        "message": "Erneut versuchen, wenn der ausgewählte Wert überschrieben wird"
+    },
+    "optionsSelectWait": {
+        "message": "Kurz auf dynamisch gerenderte Optionen warten"
+    },
+    "optionsSave": {
+        "message": "Speichern"
+    },
+    "optionsReset": {
+        "message": "Zurücksetzen"
+    },
+    "optionsSaved": {
+        "message": "Gespeichert."
+    },
+    "optionsResetDone": {
+        "message": "Auf Standardwerte zurückgesetzt."
     }
 }
