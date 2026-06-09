@@ -25,3 +25,29 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Security: Sensitive files and credentials
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+secrets/
+config/private.js
+config/secrets.js
+manifest.*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
