@@ -2,6 +2,14 @@
     "extName": {
         "message": "Tabby Paste"
     },
+    "notificationHeader": {
+        "message": "Notification from the $extensionName$ browser extension",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
+    },
     "extDescription": {
         "message": "Paste tab-separated clipboard values into successive form fields."
     },
@@ -14,8 +22,23 @@
     "command_auto_paste": {
         "message": "Tabby Paste"
     },
-    "userManual": {
-        "message": "User manual"
+    "supportSite": {
+        "message": "Support site"
+    },
+    "optionsAboutExtension": {
+        "message": "About the extension"
+    },
+    "popupEnableExtension": {
+        "message": "Enable extension"
+    },
+    "popupExtensionOn": {
+        "message": "Enabled"
+    },
+    "popupExtensionOff": {
+        "message": "Disabled"
+    },
+    "popupUrlNotEnabled": {
+        "message": "Disabled for this URL"
     },
     "clipboardReadFailed": {
         "message": "Failed to read clipboard."
@@ -29,14 +52,43 @@
     "focusInputField": {
         "message": "Please focus an input field first."
     },
+    "closeNotification": {
+        "message": "Close notification"
+    },
     "optionsTitle": {
         "message": "Settings"
+    },
+    "optionsPageHeading": {
+        "message": "$extensionName$ extension settings",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
     },
     "optionsGeneral": {
         "message": "General"
     },
     "optionsDelayMs": {
-        "message": "Delay after each operation (ms)"
+        "message": "Delay after each operation"
+    },
+    "optionsEnabledUrls": {
+        "message": "Enabled URLs"
+    },
+    "optionsEnabledUrlsDescription": {
+        "message": "Enter one URL pattern per line. Leave blank to enable the extension on every URL."
+    },
+    "optionsEnabledUrlsHelp": {
+        "message": "Use * as a wildcard. For example: https://*.example.com/*"
+    },
+    "optionsBrowserSettings": {
+        "message": "Browser settings"
+    },
+    "optionsExtensionSettings": {
+        "message": "Manage this extension"
+    },
+    "optionsShortcutSettings": {
+        "message": "Configure keyboard shortcuts"
     },
     "optionsSelect": {
         "message": "Select fields"
@@ -62,7 +114,46 @@
     "optionsSaved": {
         "message": "Saved."
     },
+    "optionsLoaded": {
+        "message": "Settings loaded."
+    },
+    "optionsLoadFailed": {
+        "message": "Could not load settings."
+    },
     "optionsResetDone": {
         "message": "Reset to defaults."
+    },
+    "optionsImportExport": {
+        "message": "Settings import / export"
+    },
+    "optionsImportExportDescription": {
+        "message": "Back up or restore all settings as a TOML file."
+    },
+    "optionsExportToml": {
+        "message": "Export"
+    },
+    "optionsImportToml": {
+        "message": "Import"
+    },
+    "optionsExported": {
+        "message": "Exported."
+    },
+    "optionsImported": {
+        "message": "Imported and saved."
+    },
+    "optionsImportFailed": {
+        "message": "Could not import the TOML file."
+    },
+    "optionsCurrentShortcut": {
+        "message": "Current keyboard shortcut:"
+    },
+    "optionsShortcutLoading": {
+        "message": "Loading..."
+    },
+    "optionsShortcutNotSet": {
+        "message": "Not set"
+    },
+    "optionsShortcutUnavailable": {
+        "message": "Unavailable"
     }
 }

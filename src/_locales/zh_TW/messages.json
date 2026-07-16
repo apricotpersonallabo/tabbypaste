@@ -2,6 +2,14 @@
     "extName": {
         "message": "Tabby Paste"
     },
+    "notificationHeader": {
+        "message": "來自 $extensionName$ 瀏覽器擴充功能的通知",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
+    },
     "extDescription": {
         "message": "將剪貼簿中以製表符分隔的文字值依序貼到表單欄位中。"
     },
@@ -14,8 +22,17 @@
     "command_auto_paste": {
         "message": "Tabby Paste"
     },
-    "userManual": {
-        "message": "使用手冊"
+    "supportSite": {
+        "message": "支援網站"
+    },
+    "optionsAboutExtension": {
+        "message": "關於擴充功能"
+    },
+    "optionsLoaded": {
+        "message": "設定已載入。"
+    },
+    "optionsLoadFailed": {
+        "message": "無法載入設定。"
     },
     "clipboardReadFailed": {
         "message": "讀取剪貼簿失敗。"

@@ -2,6 +2,14 @@
     "extName": {
         "message": "Tabby Paste"
     },
+    "notificationHeader": {
+        "message": "ブラウザ拡張機能$extensionName$からの通知",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
+    },
     "extDescription": {
         "message": "クリップボード内のタブ区切りテキストを順にフォームへ貼り付けます。"
     },
@@ -14,8 +22,23 @@
     "command_auto_paste": {
         "message": "Tabby Paste"
     },
-    "userManual": {
-        "message": "ユーザーマニュアル"
+    "supportSite": {
+        "message": "サポートサイト"
+    },
+    "optionsAboutExtension": {
+        "message": "拡張機能について"
+    },
+    "popupEnableExtension": {
+        "message": "拡張機能を有効にする"
+    },
+    "popupExtensionOn": {
+        "message": "有効"
+    },
+    "popupExtensionOff": {
+        "message": "無効"
+    },
+    "popupUrlNotEnabled": {
+        "message": "このURLでは無効です"
     },
     "clipboardReadFailed": {
         "message": "クリップボードの読み取りに失敗しました。"
@@ -29,14 +52,43 @@
     "focusInputField": {
         "message": "入力フィールドにフォーカスしてください。"
     },
+    "closeNotification": {
+        "message": "通知を閉じる"
+    },
     "optionsTitle": {
         "message": "設定"
+    },
+    "optionsPageHeading": {
+        "message": "$extensionName$拡張機能設定",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
     },
     "optionsGeneral": {
         "message": "一般"
     },
     "optionsDelayMs": {
-        "message": "各操作後の待機時間 (ms)"
+        "message": "各操作後の待機時間"
+    },
+    "optionsEnabledUrls": {
+        "message": "有効URL"
+    },
+    "optionsEnabledUrlsDescription": {
+        "message": "URLパターンを1行に1件入力してください。空欄の場合はすべてのURLで有効になります。"
+    },
+    "optionsEnabledUrlsHelp": {
+        "message": "* をワイルドカードとして使用できます。例: https://*.example.com/*"
+    },
+    "optionsBrowserSettings": {
+        "message": "ブラウザー設定"
+    },
+    "optionsExtensionSettings": {
+        "message": "この拡張機能を管理"
+    },
+    "optionsShortcutSettings": {
+        "message": "ショートカットキーを設定"
     },
     "optionsSelect": {
         "message": "セレクトボックス"
@@ -62,7 +114,46 @@
     "optionsSaved": {
         "message": "保存しました。"
     },
+    "optionsLoaded": {
+        "message": "設定を読み込みました。"
+    },
+    "optionsLoadFailed": {
+        "message": "設定を読み込めませんでした。"
+    },
     "optionsResetDone": {
         "message": "初期値に戻しました。"
+    },
+    "optionsImportExport": {
+        "message": "設定のインポート・エクスポート"
+    },
+    "optionsImportExportDescription": {
+        "message": "すべての設定をTOMLファイルとしてバックアップまたは復元します。"
+    },
+    "optionsExportToml": {
+        "message": "エクスポート"
+    },
+    "optionsImportToml": {
+        "message": "インポート"
+    },
+    "optionsExported": {
+        "message": "エクスポートしました。"
+    },
+    "optionsImported": {
+        "message": "インポートして保存しました。"
+    },
+    "optionsImportFailed": {
+        "message": "TOMLファイルをインポートできませんでした。"
+    },
+    "optionsCurrentShortcut": {
+        "message": "現在のショートカットキー:"
+    },
+    "optionsShortcutLoading": {
+        "message": "読み込み中..."
+    },
+    "optionsShortcutNotSet": {
+        "message": "未設定"
+    },
+    "optionsShortcutUnavailable": {
+        "message": "取得できません"
     }
 }

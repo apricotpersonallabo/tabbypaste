@@ -1,3 +1,11 @@
+:root {
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+}
+
 body {
   min-width: 360px;
   margin: 0;
@@ -7,63 +15,93 @@ body {
   font-size: 14px;
 }
 
+/* Page layout and headings */
+
 main {
   max-width: 560px;
-  padding: 24px;
+  padding: var(--space-lg);
 }
 
 h1 {
-  margin: 0 0 20px;
+  margin: 0 0 var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid #d9e2ec;
   font-size: 22px;
   font-weight: 650;
 }
 
 h2 {
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-sm);
   font-size: 15px;
   font-weight: 650;
 }
 
 section {
-  margin-bottom: 22px;
+  margin-bottom: var(--space-lg);
 }
+
+/* Editable settings */
 
 .field {
   display: grid;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
-.field input[type="number"] {
+.delay-input input[type="number"],
+.field textarea {
   width: 140px;
   box-sizing: border-box;
-  padding: 8px 10px;
+  padding: var(--space-xs) var(--space-sm);
   border: 1px solid #b8c2cc;
   border-radius: 6px;
   font: inherit;
 }
 
-.check {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 10px 0;
-  line-height: 1.45;
-}
-
-.check input {
-  margin-top: 3px;
-}
-
-.actions {
+.delay-input {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-top: 4px;
+  gap: var(--space-xs);
+}
+
+.delay-input span {
+  color: #52606d;
+}
+
+.toggle-heading label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-xs);
+  cursor: pointer;
+}
+
+.toggle-heading input {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.field textarea {
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+}
+
+.help {
+  margin: var(--space-xs) 0 0;
+  color: #52606d;
+  font-size: 12px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #7aa2ff;
+  outline-offset: 2px;
 }
 
 button {
   min-width: 82px;
-  padding: 8px 14px;
+  padding: var(--space-xs) var(--space-md);
   border: 1px solid #2f6fed;
   border-radius: 6px;
   color: #fff;
@@ -79,13 +117,79 @@ button.secondary {
   background: #fff;
 }
 
-button:focus-visible,
-input:focus-visible {
-  outline: 2px solid #7aa2ff;
-  outline-offset: 2px;
-}
-
-#status {
+.save-status {
+  margin-top: var(--space-xs);
   min-height: 20px;
   color: #386641;
+}
+
+/* Import and export */
+
+.import-export-section {
+  margin-top: var(--space-lg);
+}
+
+.import-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.file-input {
+  display: none;
+}
+
+/* Browser-managed settings and external links */
+
+.external-section {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid #d9e2ec;
+}
+
+.current-shortcut {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: var(--space-sm) 0;
+  color: #52606d;
+}
+
+.current-shortcut kbd {
+  padding: var(--space-xxs) var(--space-xs);
+  border: 1px solid #b8c2cc;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  color: #1f2933;
+  background: #fff;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.shortcut-settings-link {
+  margin-top: 0;
+}
+
+.settings-links {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.manual-link a,
+.shortcut-settings-link a,
+.settings-links a {
+  color: #245dcc;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.settings-links a {
+  width: fit-content;
+}
+
+.settings-links a:focus-visible {
+  outline: 2px solid #7aa2ff;
+  outline-offset: 3px;
+  border-radius: 2px;
 }

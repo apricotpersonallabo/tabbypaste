@@ -1,10 +1,118 @@
 (async () => {
+  const showNotification = (message, type = 'error') => {
+    const hostId = 'tabby-paste-notification-host';
+    document.getElementById(hostId)?.remove();
+
+    const host = document.createElement('div');
+    host.id = hostId;
+    host.style.setProperty('all', 'initial', 'important');
+    host.style.setProperty('position', 'fixed', 'important');
+    host.style.setProperty('top', '16px', 'important');
+    host.style.setProperty('left', '50%', 'important');
+    host.style.setProperty('transform', 'translateX(-50%)', 'important');
+    host.style.setProperty('z-index', '2147483647', 'important');
+    host.style.setProperty('width', 'min(560px, calc(100vw - 32px))', 'important');
+
+    const shadow = host.attachShadow({ mode: 'closed' });
+    const style = document.createElement('style');
+    style.textContent = `
+      :host { color-scheme: light; }
+      .notification {
+        box-sizing: border-box;
+        width: 100%;
+        border: 1px solid #f3b4b4;
+        border-left: 4px solid #c62828;
+        border-radius: 8px;
+        color: #3b1616;
+        background: #fff7f7;
+        box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+        font: 14px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        animation: enter 160ms ease-out;
+      }
+      .notification.warning {
+        border-color: #e8cc8b;
+        border-left-color: #a96600;
+        color: #3d2b0a;
+        background: #fffaf0;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 38px;
+        padding: 4px 9px 4px 12px;
+        border-bottom: 1px solid rgb(0 0 0 / 10%);
+        font-weight: 650;
+      }
+      .title { min-width: 0; overflow-wrap: anywhere; }
+      .message { padding: 11px 14px 13px 12px; overflow-wrap: anywhere; }
+      button {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        border-radius: 5px;
+        color: currentColor;
+        background: transparent;
+        font: 22px/1 system-ui, sans-serif;
+        cursor: pointer;
+      }
+      button:hover { background: rgb(0 0 0 / 7%); }
+      button:focus-visible { outline: 2px solid #2f6fed; outline-offset: 1px; }
+      @keyframes enter {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .notification { animation: none; }
+      }
+    `;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'assertive');
+
+    const header = document.createElement('div');
+    header.className = 'header';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'title';
+    const extensionName = chrome.i18n.getMessage('extName') || 'Tabby Paste';
+    titleEl.textContent = chrome.i18n.getMessage('notificationHeader', [extensionName]) ||
+      `ブラウザ拡張機能${extensionName}からの通知`;
+
+    const messageEl = document.createElement('div');
+    messageEl.className = 'message';
+    messageEl.textContent = message;
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.textContent = '×';
+    closeButton.setAttribute(
+      'aria-label',
+      chrome.i18n.getMessage('closeNotification') || 'Close notification'
+    );
+
+    let closeTimer;
+    const close = () => {
+      clearTimeout(closeTimer);
+      host.remove();
+    };
+    closeButton.addEventListener('click', close);
+
+    header.append(titleEl, closeButton);
+    notification.append(header, messageEl);
+    shadow.append(style, notification);
+    document.documentElement.appendChild(host);
+    closeTimer = setTimeout(close, 8000);
+  };
+
   /* --- 設定 ------------------------------------------------------ */
   const defaultSettings = {
     delayMs: 0,
-    selectValueFirst: true,
-    selectAllowContainsFallback: true,
-    selectVerifyAndRetry: true,
     selectWaitOptions: true
   };
 
@@ -21,9 +129,9 @@
   const config = {
     delayMs: Math.max(0, Number(settings.delayMs) || 0),
     select: {
-      valueFirst: settings.selectValueFirst !== false,
-      allowContainsFallback: settings.selectAllowContainsFallback !== false,
-      verifyAndRetry: settings.selectVerifyAndRetry !== false,
+      valueFirst: true,
+      allowContainsFallback: true,
+      verifyAndRetry: true,
       waitOptions: settings.selectWaitOptions !== false
     }
   };
@@ -34,12 +142,12 @@
     raw = await navigator.clipboard.readText();
   } catch (e) {
     console.error('Clipboard read failed:', e);
-    alert(chrome.i18n.getMessage('clipboardReadFailed'));
+    showNotification(chrome.i18n.getMessage('clipboardReadFailed'));
     return;
   }
 
   if (!raw) {
-    alert(chrome.i18n.getMessage('clipboardNoText'));
+    showNotification(chrome.i18n.getMessage('clipboardNoText'), 'warning');
     return;
   }
 
@@ -68,11 +176,11 @@
   /* 初回チェック */
   let allElements = getAllElements();
   if (!allElements.length) {
-    alert(chrome.i18n.getMessage('noInputFields'));
+    showNotification(chrome.i18n.getMessage('noInputFields'), 'warning');
     return;
   }
   if (allElements.indexOf(document.activeElement) === -1) {
-    alert(chrome.i18n.getMessage('focusInputField'));
+    showNotification(chrome.i18n.getMessage('focusInputField'), 'warning');
     return;
   }
 

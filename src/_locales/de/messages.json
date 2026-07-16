@@ -2,6 +2,14 @@
     "extName": {
         "message": "Tabby Paste"
     },
+    "notificationHeader": {
+        "message": "Benachrichtigung von der Browsererweiterung $extensionName$",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
+    },
     "extDescription": {
         "message": "Zwischen Tabulatoren getrennte Textwerte aus der Zwischenablage nacheinander in Formularfelder einfügen."
     },
@@ -14,8 +22,17 @@
     "command_auto_paste": {
         "message": "Tabby Paste"
     },
-    "userManual": {
-        "message": "Benutzerhandbuch"
+    "supportSite": {
+        "message": "Support-Website"
+    },
+    "optionsAboutExtension": {
+        "message": "Über die Erweiterung"
+    },
+    "optionsLoaded": {
+        "message": "Einstellungen geladen."
+    },
+    "optionsLoadFailed": {
+        "message": "Einstellungen konnten nicht geladen werden."
     },
     "clipboardReadFailed": {
         "message": "Fehler beim Lesen der Zwischenablage."

@@ -62,17 +62,24 @@ jobs:
             exit 1
           fi
 
-      - name: Create zip (zip root contains manifest.json)
+      - name: Create browser packages (zip root contains manifest.json)
         id: zip
         run: |
           TAG="${{ steps.ver.outputs.tag }}"
           REPO_NAME="${{ steps.repo.outputs.repo_name }}"
-          ZIP_NAME="${REPO_NAME}-${TAG}.zip"
+          CHROMIUM_ZIP="${REPO_NAME}-${TAG}-chromium.zip"
+          FIREFOX_ZIP="${REPO_NAME}-${TAG}-firefox.zip"
           cd src
-          # exclude common junk if present
-          zip -r "../$ZIP_NAME" . -x "node_modules/*" "*.map" ".DS_Store" "*.log"
+          zip -r "../$CHROMIUM_ZIP" . \
+            -x "manifest.firefox.json" "node_modules/*" "*.map" ".DS_Store" "*.log"
+          cp manifest.json manifest.chromium.json
+          cp manifest.firefox.json manifest.json
+          zip -r "../$FIREFOX_ZIP" . \
+            -x "manifest.firefox.json" "manifest.chromium.json" "node_modules/*" "*.map" ".DS_Store" "*.log"
+          mv manifest.chromium.json manifest.json
           cd -
-          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
+          echo "chromium_zip=$CHROMIUM_ZIP" >> "$GITHUB_OUTPUT"
+          echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 
       - name: Create/Update GitHub Release
         uses: softprops/action-gh-release@v2
@@ -80,6 +87,8 @@ jobs:
           tag_name: ${{ steps.ver.outputs.tag }}
           name: ${{ steps.ver.outputs.tag }}
           generate_release_notes: true
-          files: ${{ steps.zip.outputs.zip_name }}
+          files: |
+            ${{ steps.zip.outputs.chromium_zip }}
+            ${{ steps.zip.outputs.firefox_zip }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

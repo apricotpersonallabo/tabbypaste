@@ -2,6 +2,14 @@
     "extName": {
         "message": "Tabby Paste"
     },
+    "notificationHeader": {
+        "message": "来自 $extensionName$ 浏览器扩展程序的通知",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
+    },
     "extDescription": {
         "message": "将剪贴板中以制表符分隔的文本值依次粘贴到表单字段中。"
     },
@@ -14,8 +22,17 @@
     "command_auto_paste": {
         "message": "Tabby Paste"
     },
-    "userManual": {
-        "message": "使用手册"
+    "supportSite": {
+        "message": "支持网站"
+    },
+    "optionsAboutExtension": {
+        "message": "关于扩展程序"
+    },
+    "optionsLoaded": {
+        "message": "设置已加载。"
+    },
+    "optionsLoadFailed": {
+        "message": "无法加载设置。"
     },
     "clipboardReadFailed": {
         "message": "读取剪贴板失败。"

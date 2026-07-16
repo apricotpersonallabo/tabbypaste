@@ -22,8 +22,9 @@
     "open_in_tab": true
   },
   "background": {
-    "service_worker": "background.js",
-    "type": "module"
+    "scripts": [
+      "background.js"
+    ]
   },
   "permissions": [
     "activeTab",
@@ -39,6 +40,12 @@
         "default": "Ctrl+Shift+V"
       },
       "description": "__MSG_command_auto_paste__"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tabbypaste@apricotpersonallabo.github.io",
+      "strict_min_version": "109.0"
     }
   }
 }

@@ -36,6 +36,7 @@ secrets/
 config/private.js
 config/secrets.js
 manifest.*.json
+!src/manifest.firefox.json
 
 # IDE
 .vscode/

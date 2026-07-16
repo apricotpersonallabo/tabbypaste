@@ -2,6 +2,14 @@
     "extName": {
         "message": "Tabby Paste"
     },
+    "notificationHeader": {
+        "message": "Notificación de la extensión de navegador $extensionName$",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
+    },
     "extDescription": {
         "message": "Pega valores separados por tabulaciones desde el portapapeles en campos de formulario sucesivos."
     },
@@ -14,8 +22,17 @@
     "command_auto_paste": {
         "message": "Tabby Paste"
     },
-    "userManual": {
-        "message": "Manual de usuario"
+    "supportSite": {
+        "message": "Sitio de soporte"
+    },
+    "optionsAboutExtension": {
+        "message": "Acerca de la extensión"
+    },
+    "optionsLoaded": {
+        "message": "Configuración cargada."
+    },
+    "optionsLoadFailed": {
+        "message": "No se pudo cargar la configuración."
     },
     "clipboardReadFailed": {
         "message": "Error al leer el portapapeles."

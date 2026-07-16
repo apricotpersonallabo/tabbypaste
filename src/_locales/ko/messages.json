@@ -2,6 +2,14 @@
     "extName": {
         "message": "Tabby Paste"
     },
+    "notificationHeader": {
+        "message": "$extensionName$ 브라우저 확장 프로그램의 알림",
+        "placeholders": {
+            "extensionName": {
+                "content": "$1"
+            }
+        }
+    },
     "extDescription": {
         "message": "클립보드의 탭으로 구분된 텍스트 값을 순서대로 폼 필드에 붙여넣습니다."
     },
@@ -14,8 +22,17 @@
     "command_auto_paste": {
         "message": "Tabby Paste"
     },
-    "userManual": {
-        "message": "사용자 설명서"
+    "supportSite": {
+        "message": "지원 사이트"
+    },
+    "optionsAboutExtension": {
+        "message": "확장 프로그램 정보"
+    },
+    "optionsLoaded": {
+        "message": "설정을 불러왔습니다."
+    },
+    "optionsLoadFailed": {
+        "message": "설정을 불러오지 못했습니다."
     },
     "clipboardReadFailed": {
         "message": "클립보드 읽기 실패."

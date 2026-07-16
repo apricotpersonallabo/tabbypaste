@@ -6,9 +6,14 @@
     <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-    <p>
-        <a id="manualLink" href="https://apricotpersonallabo.github.io/tabbypaste/" target="_blank" rel="noreferrer">User manual</a>
-    </p>
+    <label class="toggle-row" for="extensionEnabled">
+        <span id="toggleLabel">Enable extension</span>
+        <span class="switch">
+            <input id="extensionEnabled" type="checkbox" role="switch" />
+            <span class="slider" aria-hidden="true"></span>
+        </span>
+    </label>
+    <p id="toggleStatus" class="toggle-status" aria-live="polite"></p>
     <p>
         <button id="optionsButton" type="button">Settings</button>
     </p>

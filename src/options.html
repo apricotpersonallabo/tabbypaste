@@ -8,43 +8,93 @@
 </head>
 <body>
   <main>
-    <h1 data-i18n="optionsTitle">Tabby Paste Settings</h1>
+    <h1 id="optionsHeading">Tabby Paste extension settings</h1>
 
     <form id="optionsForm">
-      <section>
-        <h2 data-i18n="optionsGeneral">General</h2>
+      <!-- Editable settings -->
+      <section class="settings-section">
+        <h2 data-i18n="optionsEnabledUrls">Enabled URLs</h2>
         <label class="field">
-          <span data-i18n="optionsDelayMs">Delay after each operation (ms)</span>
-          <input id="delayMs" name="delayMs" type="number" min="0" max="5000" step="10" />
+          <span id="enabledUrlsDescription" data-i18n="optionsEnabledUrlsDescription">Enter one URL pattern per line. Leave blank to enable the extension on every URL.</span>
+          <textarea
+            id="enabledUrls"
+            name="enabledUrls"
+            rows="6"
+            placeholder="https://example.com/*"
+            aria-describedby="enabledUrlsDescription enabledUrlsHelp"
+          ></textarea>
         </label>
+        <p id="enabledUrlsHelp" class="help" data-i18n="optionsEnabledUrlsHelp">Use * as a wildcard. For example: https://*.example.com/*</p>
       </section>
 
-      <section>
-        <h2 data-i18n="optionsSelect">Select fields</h2>
-        <label class="check">
-          <input id="selectValueFirst" name="selectValueFirst" type="checkbox" />
-          <span data-i18n="optionsSelectValueFirst">Search option values before visible text</span>
-        </label>
-        <label class="check">
-          <input id="selectAllowContainsFallback" name="selectAllowContainsFallback" type="checkbox" />
-          <span data-i18n="optionsSelectContains">Allow contains match when exact/prefix match fails</span>
-        </label>
-        <label class="check">
-          <input id="selectVerifyAndRetry" name="selectVerifyAndRetry" type="checkbox" />
-          <span data-i18n="optionsSelectRetry">Retry if the selected value is overwritten</span>
-        </label>
-        <label class="check">
-          <input id="selectWaitOptions" name="selectWaitOptions" type="checkbox" />
-          <span data-i18n="optionsSelectWait">Wait briefly for dynamically rendered options</span>
-        </label>
+      <section class="settings-section">
+        <h2 id="delayHeading" data-i18n="optionsDelayMs">Delay after each operation</h2>
+        <div class="delay-input">
+          <input
+            id="delayMs"
+            name="delayMs"
+            type="number"
+            min="0"
+            max="5000"
+            step="10"
+            aria-labelledby="delayHeading"
+          />
+          <span aria-hidden="true">ms</span>
+        </div>
       </section>
 
-      <div class="actions">
-        <button id="saveButton" type="submit" data-i18n="optionsSave">Save</button>
-        <button id="resetButton" type="button" class="secondary" data-i18n="optionsReset">Reset</button>
-        <span id="status" role="status" aria-live="polite"></span>
-      </div>
+      <section class="settings-section">
+        <h2 class="toggle-heading">
+          <label for="selectWaitOptions">
+            <input id="selectWaitOptions" name="selectWaitOptions" type="checkbox" />
+            <span data-i18n="optionsSelectWait">Wait briefly for dynamically rendered options</span>
+          </label>
+        </h2>
+      </section>
+
+      <section class="settings-section import-export-section">
+        <h2 data-i18n="optionsImportExport">Import / Export</h2>
+        <div class="import-export-actions">
+          <button id="exportButton" type="button" class="secondary" data-i18n="optionsExportToml">Export</button>
+          <button id="importButton" type="button" class="secondary" data-i18n="optionsImportToml">Import</button>
+          <input
+            id="importFile"
+            class="file-input"
+            type="file"
+            accept=".toml,application/toml,text/plain"
+          />
+        </div>
+        <div id="status" class="save-status" role="status" aria-live="polite"></div>
+      </section>
     </form>
+
+    <!-- Browser-managed settings -->
+    <section class="external-section">
+      <h2 data-i18n="optionsBrowserSettings">Browser settings</h2>
+
+      <div class="shortcut-settings-link">
+        <a id="shortcutSettingsLink" href="#" data-i18n="optionsShortcutSettings">Configure keyboard shortcuts</a>
+      </div>
+
+      <div class="current-shortcut">
+        <span data-i18n="optionsCurrentShortcut">Current keyboard shortcut:</span>
+        <kbd id="currentShortcut" data-i18n="optionsShortcutLoading">Loading...</kbd>
+      </div>
+
+      <div class="settings-links">
+        <a id="extensionSettingsLink" href="#" data-i18n="optionsExtensionSettings">Manage this extension</a>
+      </div>
+    </section>
+
+    <section class="external-section manual-link">
+      <h2 data-i18n="optionsAboutExtension">About the extension</h2>
+      <a
+        href="https://apricotpersonallabo.github.io/tabbypaste/"
+        target="_blank"
+        rel="noreferrer"
+        data-i18n="supportSite"
+      >Support site</a>
+    </section>
   </main>
 
   <script src="options.js"></script>
