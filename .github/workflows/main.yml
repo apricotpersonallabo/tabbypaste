@@ -1,5 +1,5 @@
-# .github/workflows/release-from-manifest.yml
-name: Release from manifest.json
+# .github/workflows/main.yml
+name: Build and release browser extensions
 
 on:
   workflow_dispatch:
@@ -7,7 +7,11 @@ on:
     branches: [ main ]  # adjust if needed
 
 permissions:
-  contents: write        # required to push tags and create releases
+  contents: write
+
+concurrency:
+  group: extension-release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build-and-release:
@@ -19,23 +23,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Ensure manifest exists
-        run: |
-          test -f "src/manifest.json" || (echo "src/manifest.json not found"; exit 1)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Read version from manifest.json
+      - name: Ensure version files exist
+        run: |
+          test -f "version.json" || (echo "version.json not found"; exit 1)
+          test -f "src/manifest.json" || (echo "src/manifest.json not found"; exit 1)
+          test -f "src/manifest.firefox.json" || (echo "src/manifest.firefox.json not found"; exit 1)
+
+      - name: Increment and synchronize version
+        run: node scripts/sync-manifest-version.mjs --increment
+
+      - name: Read synchronized version
         id: ver
         run: |
-          VERSION=$(jq -r '.version' "src/manifest.json")
+          VERSION=$(jq -r '.version' "version.json")
           if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
-            echo "No version found in src/manifest.json"; exit 1
+            echo "No version found in version.json"; exit 1
           fi
-          # Normalize tag: use v<version> unless it already starts with v
-          if [[ "$VERSION" =~ ^v ]]; then
-            TAG="$VERSION"
-          else
-            TAG="v$VERSION"
-          fi
+          test "$(jq -r '.version' src/manifest.json)" = "$VERSION"
+          test "$(jq -r '.version' src/manifest.firefox.json)" = "$VERSION"
+          TAG="v$VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
@@ -46,20 +57,28 @@ jobs:
           echo "repo_name=$REPO_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Fail if the release/tag already exists
-        id: tagcheck
         run: |
           TAG="${{ steps.ver.outputs.tag }}"
-          # Check if the tag exists
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists. Please increment the version in manifest.json."
+            echo "Tag $TAG already exists."
             exit 1
           fi
-          # Check if the release exists via GitHub API
           RELEASE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}"
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$RELEASE_URL")
           if [ "$STATUS" -eq 200 ]; then
-            echo "Release for tag $TAG already exists. Please increment the version in manifest.json."
+            echo "Release for tag $TAG already exists."
             exit 1
+          fi
+
+      - name: Commit synchronized version
+        run: |
+          VERSION="${{ steps.ver.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add version.json src/manifest.json src/manifest.firefox.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: bump extension version to $VERSION [skip ci]"
+            git push
           fi
 
       - name: Create browser packages (zip root contains manifest.json)
@@ -69,15 +88,12 @@ jobs:
           REPO_NAME="${{ steps.repo.outputs.repo_name }}"
           CHROMIUM_ZIP="${REPO_NAME}-${TAG}-chromium.zip"
           FIREFOX_ZIP="${REPO_NAME}-${TAG}-firefox.zip"
-          cd src
-          zip -r "../$CHROMIUM_ZIP" . \
-            -x "manifest.firefox.json" "node_modules/*" "*.map" ".DS_Store" "*.log"
-          cp manifest.json manifest.chromium.json
-          cp manifest.firefox.json manifest.json
-          zip -r "../$FIREFOX_ZIP" . \
-            -x "manifest.firefox.json" "manifest.chromium.json" "node_modules/*" "*.map" ".DS_Store" "*.log"
-          mv manifest.chromium.json manifest.json
-          cd -
+          mkdir -p build/chromium build/firefox
+          rsync -a --exclude "manifest.firefox.json" src/ build/chromium/
+          rsync -a --exclude "manifest.json" --exclude "manifest.firefox.json" src/ build/firefox/
+          cp src/manifest.firefox.json build/firefox/manifest.json
+          (cd build/chromium && zip -r "../../$CHROMIUM_ZIP" . -x "node_modules/*" "*.map" ".DS_Store" "*.log")
+          (cd build/firefox && zip -r "../../$FIREFOX_ZIP" . -x "node_modules/*" "*.map" ".DS_Store" "*.log")
           echo "chromium_zip=$CHROMIUM_ZIP" >> "$GITHUB_OUTPUT"
           echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 
@@ -85,6 +101,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.ref_name }}
           name: ${{ steps.ver.outputs.tag }}
           generate_release_notes: true
           files: |

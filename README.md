@@ -20,6 +20,16 @@ https://microsoftedge.microsoft.com/addons/detail/tabby-paste/gjkopcpoddbifofepj
 
 The Firefox package uses `manifest.firefox.json` as its source manifest. Release builds rename it to `manifest.json` automatically.
 
+## Version management
+
+`version.json` is the single source of truth for the extension version. After changing it locally, synchronize both browser manifests with:
+
+```sh
+node scripts/sync-manifest-version.mjs
+```
+
+The release workflow increments the version automatically, synchronizes both manifests, commits the new version, and builds Chromium and Firefox packages with the same version.
+
 ## User manual
 You can see the user manual in this repository.
 https://apricotpersonallabo.github.io/tabbypaste/
