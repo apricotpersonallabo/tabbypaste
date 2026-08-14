@@ -6,8 +6,7 @@ on:
   push:
     branches: [ main ]  # adjust if needed
 
-permissions:
-  contents: write
+permissions: {}
 
 concurrency:
   group: extension-release-${{ github.ref }}
@@ -16,6 +15,12 @@ concurrency:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      chromium_zip: ${{ steps.zip.outputs.chromium_zip }}
+      firefox_zip: ${{ steps.zip.outputs.firefox_zip }}
 
     steps:
       - name: Check out repo (with tags)
@@ -26,7 +31,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Ensure version files exist
         run: |
@@ -97,6 +102,16 @@ jobs:
           echo "chromium_zip=$CHROMIUM_ZIP" >> "$GITHUB_OUTPUT"
           echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 
+      - name: Upload browser packages for store jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-extension-packages-${{ steps.ver.outputs.version }}
+          path: |
+            ${{ steps.zip.outputs.chromium_zip }}
+            ${{ steps.zip.outputs.firefox_zip }}
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Create/Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -109,3 +124,144 @@ jobs:
             ${{ steps.zip.outputs.firefox_zip }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  submit-chrome:
+    name: Submit to Chrome Web Store
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: browser-stores
+    env:
+      CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+      CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+      CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+      CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+
+    steps:
+      - name: Check Chrome Web Store configuration
+        id: config
+        shell: bash
+        run: |
+          if [[ -n "$CHROME_CLIENT_ID" && -n "$CHROME_CLIENT_SECRET" && -n "$CHROME_REFRESH_TOKEN" && -n "$CHROME_PUBLISHER_ID" && -n "$CHROME_EXTENSION_ID" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Chrome Web Store submission skipped because its secrets or variables are not configured."
+          fi
+
+      - name: Check out submission script
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download browser packages
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
+          path: dist
+
+      - name: Upload and submit Chrome package
+        if: steps.config.outputs.enabled == 'true'
+        run: node scripts/submit-store.mjs chrome "dist/${{ needs.build-and-release.outputs.chromium_zip }}"
+
+  submit-edge:
+    name: Submit to Microsoft Edge Add-ons
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: browser-stores
+    env:
+      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+      EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+      EDGE_PUBLISH_NOTES: Release ${{ needs.build-and-release.outputs.version }} from GitHub Actions.
+
+    steps:
+      - name: Check Microsoft Edge Add-ons configuration
+        id: config
+        shell: bash
+        run: |
+          if [[ -n "$EDGE_CLIENT_ID" && -n "$EDGE_API_KEY" && -n "$EDGE_PRODUCT_ID" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Microsoft Edge Add-ons submission skipped because its secrets or variables are not configured."
+          fi
+
+      - name: Check out submission script
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download browser packages
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
+          path: dist
+
+      - name: Upload and submit Edge package
+        if: steps.config.outputs.enabled == 'true'
+        run: node scripts/submit-store.mjs edge "dist/${{ needs.build-and-release.outputs.chromium_zip }}"
+
+  submit-firefox:
+    name: Submit to Firefox Add-ons
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: browser-stores
+    env:
+      WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+      WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+
+    steps:
+      - name: Check Firefox Add-ons configuration
+        id: config
+        shell: bash
+        run: |
+          if [[ -n "$WEB_EXT_API_KEY" && -n "$WEB_EXT_API_SECRET" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Firefox Add-ons submission skipped because its secrets are not configured."
+          fi
+
+      - name: Check out AMO metadata
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download browser packages
+        if: steps.config.outputs.enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
+          path: dist
+
+      - name: Extract Firefox package
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          mkdir firefox-source
+          unzip -q "dist/${{ needs.build-and-release.outputs.firefox_zip }}" -d firefox-source
+
+      - name: Upload and submit Firefox package
+        if: steps.config.outputs.enabled == 'true'
+        run: npx --yes web-ext@10 sign --source-dir firefox-source --channel listed --amo-metadata amo-metadata.json --approval-timeout 0 --no-input

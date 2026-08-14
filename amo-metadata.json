@@ -1,0 +1,12 @@
+{
+  "summary": {
+    "en-US": "Paste tab-separated clipboard values into consecutive input fields.",
+    "ja": "クリップボード内のタブ区切り文字列を連続した入力欄へ貼り付けます。"
+  },
+  "categories": [
+    "other"
+  ],
+  "version": {
+    "license": "Apache-2.0"
+  }
+}
