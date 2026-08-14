@@ -24,12 +24,12 @@ jobs:
 
     steps:
       - name: Check out repo (with tags)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
 
@@ -103,7 +103,7 @@ jobs:
           echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 
       - name: Upload browser packages for store jobs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: browser-extension-packages-${{ steps.ver.outputs.version }}
           path: |
@@ -113,7 +113,7 @@ jobs:
           retention-days: 7
 
       - name: Create/Update GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
           target_commitish: ${{ github.ref_name }}
@@ -131,17 +131,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: browser-stores
-    env:
-      CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
-      CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
-      CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
-      CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
-      CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
-
     steps:
       - name: Check Chrome Web Store configuration
         id: config
         shell: bash
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
         run: |
           if [[ -n "$CHROME_CLIENT_ID" && -n "$CHROME_CLIENT_SECRET" && -n "$CHROME_REFRESH_TOKEN" && -n "$CHROME_PUBLISHER_ID" && -n "$CHROME_EXTENSION_ID" ]]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
@@ -152,23 +151,29 @@ jobs:
 
       - name: Check out submission script
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Node.js
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
 
       - name: Download browser packages
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
           path: dist
 
       - name: Upload and submit Chrome package
         if: steps.config.outputs.enabled == 'true'
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
         run: node scripts/submit-store.mjs chrome "dist/${{ needs.build-and-release.outputs.chromium_zip }}"
 
   submit-edge:
@@ -177,16 +182,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: browser-stores
-    env:
-      EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
-      EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
-      EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
-      EDGE_PUBLISH_NOTES: Release ${{ needs.build-and-release.outputs.version }} from GitHub Actions.
-
     steps:
       - name: Check Microsoft Edge Add-ons configuration
         id: config
         shell: bash
+        env:
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
         run: |
           if [[ -n "$EDGE_CLIENT_ID" && -n "$EDGE_API_KEY" && -n "$EDGE_PRODUCT_ID" ]]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
@@ -197,23 +200,28 @@ jobs:
 
       - name: Check out submission script
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Node.js
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
 
       - name: Download browser packages
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
           path: dist
 
       - name: Upload and submit Edge package
         if: steps.config.outputs.enabled == 'true'
+        env:
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+          EDGE_PUBLISH_NOTES: Release ${{ needs.build-and-release.outputs.version }} from GitHub Actions.
         run: node scripts/submit-store.mjs edge "dist/${{ needs.build-and-release.outputs.chromium_zip }}"
 
   submit-firefox:
@@ -222,14 +230,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: browser-stores
-    env:
-      WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
-      WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
-
     steps:
       - name: Check Firefox Add-ons configuration
         id: config
         shell: bash
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
         run: |
           if [[ -n "$WEB_EXT_API_KEY" && -n "$WEB_EXT_API_SECRET" ]]; then
             echo "enabled=true" >> "$GITHUB_OUTPUT"
@@ -240,17 +247,17 @@ jobs:
 
       - name: Check out AMO metadata
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Node.js
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
 
       - name: Download browser packages
         if: steps.config.outputs.enabled == 'true'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
           path: dist
@@ -262,6 +269,16 @@ jobs:
           mkdir firefox-source
           unzip -q "dist/${{ needs.build-and-release.outputs.firefox_zip }}" -d firefox-source
 
+      - name: Install pinned Firefox submission tooling
+        if: steps.config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          corepack enable pnpm
+          pnpm install --frozen-lockfile --ignore-scripts
+
       - name: Upload and submit Firefox package
         if: steps.config.outputs.enabled == 'true'
-        run: npx --yes web-ext@10 sign --source-dir firefox-source --channel listed --amo-metadata amo-metadata.json --approval-timeout 0 --no-input
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: pnpm exec web-ext sign --source-dir firefox-source --channel listed --amo-metadata amo-metadata.json --approval-timeout 0 --no-input

@@ -1,0 +1,8 @@
+{
+  "name": "tabbypaste",
+  "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "devDependencies": {
+    "web-ext": "10.6.0"
+  }
+}

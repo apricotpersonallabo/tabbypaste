@@ -48,6 +48,8 @@ Chrome and Edge products must be created in their developer dashboards before th
 
 For an approval gate before credentials become available to the jobs, configure required reviewers on the `browser-stores` Environment.
 
+The workflow installs the exact `web-ext` version recorded in `package.json` and `pnpm-lock.yaml`. Update both files together when upgrading the Firefox submission tooling.
+
 ## User manual
 You can see the user manual in this repository.
 https://apricotpersonallabo.github.io/tabbypaste/
