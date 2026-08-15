@@ -1,6 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { basename, resolve } from 'node:path';
 
+import {
+  assertChromeUploadSucceeded,
+  CHROME_UPLOAD_STATES,
+  getChromeUploadState
+} from './chrome-upload-state.mjs';
+
 const API_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 5_000;
 const MAX_POLL_ATTEMPTS = 120;
@@ -85,17 +91,14 @@ const submitChrome = async () => {
   });
 
   for (let attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt++) {
-    const uploadState = String(uploadResult?.uploadState ?? '').toUpperCase();
-    if (!uploadState.includes('IN_PROGRESS')) break;
+    const uploadState = getChromeUploadState(uploadResult);
+    if (uploadState !== CHROME_UPLOAD_STATES.IN_PROGRESS) break;
     console.log(`Chrome upload is still processing (${attempt}/${MAX_POLL_ATTEMPTS}).`);
     await sleep(POLL_INTERVAL_MS);
     ({ body: uploadResult } = await request(statusUrl, { headers: authorization }));
   }
 
-  const finalUploadState = String(uploadResult?.uploadState ?? '').toUpperCase();
-  if (!finalUploadState.includes('SUCCESS')) {
-    throw new Error(`Chrome upload did not succeed: ${JSON.stringify(uploadResult)}`);
-  }
+  assertChromeUploadSucceeded(uploadResult);
 
   await request(publishUrl, {
     method: 'POST',
