@@ -22,17 +22,23 @@ The Firefox package uses `manifest.firefox.json` as its source manifest. Release
 
 ## Version management
 
-`version.json` is the single source of truth for the extension version. After changing it locally, synchronize both browser manifests with:
+`version.json` is the single source of truth for the extension version. Increment it and synchronize both browser manifests with:
 
 ```sh
-node scripts/sync-manifest-version.mjs
+node scripts/sync-manifest-version.mjs --increment
 ```
 
-The release workflow increments the version automatically, synchronizes both manifests, commits the new version, and builds Chromium and Firefox packages with the same version.
+Commit `version.json`, `src/manifest.json`, and `src/manifest.firefox.json` together. To check their consistency without modifying them, run:
+
+```sh
+node scripts/sync-manifest-version.mjs --check
+```
+
+Pushes and pull requests validate and package the extension but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
 
 ## Automated store submissions
 
-After creating a GitHub release, the workflow submits the same release packages to every configured browser store. Store jobs run independently, and a store is skipped when any of its required settings is missing.
+The manual release workflow submits the same packages to every configured browser store in parallel. It creates the GitHub release only after all configured store submissions succeed. A store is disabled when all of its settings are absent; a partially configured store fails the workflow.
 
 Create a GitHub Environment named `browser-stores`. Add the following Environment secrets and variables:
 

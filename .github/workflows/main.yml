@@ -1,29 +1,32 @@
-# .github/workflows/main.yml
-name: Build and release browser extensions
+name: Validate and release browser extensions
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]  # adjust if needed
+    branches: [main]
+  pull_request:
 
 permissions: {}
 
 concurrency:
-  group: extension-release-${{ github.ref }}
-  cancel-in-progress: false
+  group: extension-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
-  build-and-release:
+  validate-and-package:
+    name: Validate and package extensions
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      contents: write
+      contents: read
     outputs:
-      version: ${{ steps.ver.outputs.version }}
-      chromium_zip: ${{ steps.zip.outputs.chromium_zip }}
-      firefox_zip: ${{ steps.zip.outputs.firefox_zip }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      chromium_zip: ${{ steps.package.outputs.chromium_zip }}
+      firefox_zip: ${{ steps.package.outputs.firefox_zip }}
 
     steps:
-      - name: Check out repo (with tags)
+      - name: Check out repository and tags
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
@@ -33,105 +36,143 @@ jobs:
         with:
           node-version: 22
 
-      - name: Ensure version files exist
+      - name: Require main for a manual release
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
         run: |
-          test -f "version.json" || (echo "version.json not found"; exit 1)
-          test -f "src/manifest.json" || (echo "src/manifest.json not found"; exit 1)
-          test -f "src/manifest.firefox.json" || (echo "src/manifest.firefox.json not found"; exit 1)
-
-      - name: Increment and synchronize version
-        run: node scripts/sync-manifest-version.mjs --increment
-
-      - name: Read synchronized version
-        id: ver
-        run: |
-          VERSION=$(jq -r '.version' "version.json")
-          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
-            echo "No version found in version.json"; exit 1
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Manual releases must run from main, not $GITHUB_REF."
+            exit 1
           fi
-          test "$(jq -r '.version' src/manifest.json)" = "$VERSION"
-          test "$(jq -r '.version' src/manifest.firefox.json)" = "$VERSION"
-          TAG="v$VERSION"
+
+      - name: Install pinned tooling
+        shell: bash
+        run: |
+          corepack enable pnpm
+          pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Validate version files
+        id: version
+        shell: bash
+        run: |
+          node scripts/sync-manifest-version.mjs --check
+          VERSION=$(jq -r '.version' version.json)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Get repo name
-        id: repo
+      - name: Reject an existing release version
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          REPO_NAME=$(basename "$GITHUB_REPOSITORY")
-          echo "repo_name=$REPO_NAME" >> "$GITHUB_OUTPUT"
-
-      - name: Fail if the release/tag already exists
-        run: |
-          TAG="${{ steps.ver.outputs.tag }}"
+          TAG="${{ steps.version.outputs.tag }}"
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists."
+            echo "::error::Tag $TAG already exists."
             exit 1
           fi
+
           RELEASE_URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}"
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$RELEASE_URL")
-          if [ "$STATUS" -eq 200 ]; then
-            echo "Release for tag $TAG already exists."
+          STATUS=$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "$RELEASE_URL")
+          if [[ "$STATUS" == "200" ]]; then
+            echo "::error::Release for $TAG already exists."
+            exit 1
+          fi
+          if [[ "$STATUS" != "404" ]]; then
+            echo "::error::Unexpected release lookup status: $STATUS."
             exit 1
           fi
 
-      - name: Commit synchronized version
+      - name: Check JavaScript and run unit tests
+        shell: bash
         run: |
-          VERSION="${{ steps.ver.outputs.version }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add version.json src/manifest.json src/manifest.firefox.json
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: bump extension version to $VERSION [skip ci]"
-            git push
-          fi
+          for source_file in scripts/*.mjs src/*.js; do
+            node --check "$source_file"
+          done
+          node --test scripts/*.test.mjs
 
-      - name: Create browser packages (zip root contains manifest.json)
-        id: zip
+      - name: Create browser packages
+        id: package
+        shell: bash
         run: |
-          TAG="${{ steps.ver.outputs.tag }}"
-          REPO_NAME="${{ steps.repo.outputs.repo_name }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
           CHROMIUM_ZIP="${REPO_NAME}-${TAG}-chromium.zip"
           FIREFOX_ZIP="${REPO_NAME}-${TAG}-firefox.zip"
+
           mkdir -p build/chromium build/firefox
-          rsync -a --exclude "manifest.firefox.json" src/ build/chromium/
-          rsync -a --exclude "manifest.json" --exclude "manifest.firefox.json" src/ build/firefox/
+          rsync -a --exclude 'manifest.firefox.json' src/ build/chromium/
+          rsync -a --exclude 'manifest.json' --exclude 'manifest.firefox.json' src/ build/firefox/
           cp src/manifest.firefox.json build/firefox/manifest.json
-          (cd build/chromium && zip -r "../../$CHROMIUM_ZIP" . -x "node_modules/*" "*.map" ".DS_Store" "*.log")
-          (cd build/firefox && zip -r "../../$FIREFOX_ZIP" . -x "node_modules/*" "*.map" ".DS_Store" "*.log")
+
+          pnpm exec web-ext lint --source-dir build/firefox --boring
+
+          (cd build/chromium && zip -qr "../../$CHROMIUM_ZIP" . \
+            -x 'node_modules/*' '*.map' '.DS_Store' '*.log')
+          (cd build/firefox && zip -qr "../../$FIREFOX_ZIP" . \
+            -x 'node_modules/*' '*.map' '.DS_Store' '*.log')
+
+          verify_package() {
+            local archive="$1"
+            local entries="$RUNNER_TEMP/$(basename "$archive").entries"
+
+            unzip -tq "$archive"
+            unzip -Z1 "$archive" | sed 's#^\./##' > "$entries"
+            if [[ "$(grep -cx 'manifest.json' "$entries")" -ne 1 ]]; then
+              echo "::error::$archive must contain exactly one root manifest.json."
+              exit 1
+            fi
+            if grep -Eq '(^|/)manifest\.firefox\.json$' "$entries"; then
+              echo "::error::$archive contains manifest.firefox.json."
+              exit 1
+            fi
+            if grep -Eq '(^|/)node_modules/|\.map$|(^|/)\.DS_Store$|\.log$' "$entries"; then
+              echo "::error::$archive contains an excluded file."
+              exit 1
+            fi
+            unzip -p "$archive" manifest.json \
+              | jq -e --arg version "$VERSION" '.version == $version' >/dev/null
+          }
+
+          verify_package "$CHROMIUM_ZIP"
+          verify_package "$FIREFOX_ZIP"
+
           echo "chromium_zip=$CHROMIUM_ZIP" >> "$GITHUB_OUTPUT"
           echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 
-      - name: Upload browser packages for store jobs
+      - name: Upload packages for release jobs
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: browser-extension-packages-${{ steps.ver.outputs.version }}
+          name: browser-extension-packages-${{ steps.version.outputs.version }}
           path: |
-            ${{ steps.zip.outputs.chromium_zip }}
-            ${{ steps.zip.outputs.firefox_zip }}
+            ${{ steps.package.outputs.chromium_zip }}
+            ${{ steps.package.outputs.firefox_zip }}
           if-no-files-found: error
           retention-days: 7
 
-      - name: Create/Update GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
-        with:
-          tag_name: ${{ steps.ver.outputs.tag }}
-          target_commitish: ${{ github.ref_name }}
-          name: ${{ steps.ver.outputs.tag }}
-          generate_release_notes: true
-          files: |
-            ${{ steps.zip.outputs.chromium_zip }}
-            ${{ steps.zip.outputs.firefox_zip }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   submit-chrome:
     name: Submit to Chrome Web Store
-    needs: build-and-release
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate-and-package
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     environment: browser-stores
     steps:
+      - name: Check out submission scripts
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
       - name: Check Chrome Web Store configuration
         id: config
         shell: bash
@@ -141,35 +182,16 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
           CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
-        run: |
-          if [[ -n "$CHROME_CLIENT_ID" && -n "$CHROME_CLIENT_SECRET" && -n "$CHROME_REFRESH_TOKEN" && -n "$CHROME_PUBLISHER_ID" && -n "$CHROME_EXTENSION_ID" ]]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Chrome Web Store submission skipped because its secrets or variables are not configured."
-          fi
-
-      - name: Check out submission script
-        if: steps.config.outputs.enabled == 'true'
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Set up Node.js
-        if: steps.config.outputs.enabled == 'true'
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
-
-      - name: Validate Chrome submission script
-        if: steps.config.outputs.enabled == 'true'
-        run: |
-          node --check scripts/submit-store.mjs
-          node --test scripts/submit-store.test.mjs
+        run: >-
+          node scripts/check-store-configuration.mjs "Chrome Web Store"
+          CHROME_CLIENT_ID CHROME_CLIENT_SECRET CHROME_REFRESH_TOKEN
+          CHROME_PUBLISHER_ID CHROME_EXTENSION_ID
 
       - name: Download browser packages
         if: steps.config.outputs.enabled == 'true'
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
+          name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
           path: dist
 
       - name: Upload and submit Chrome package
@@ -180,15 +202,26 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
           CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
-        run: node scripts/submit-store.mjs chrome "dist/${{ needs.build-and-release.outputs.chromium_zip }}"
+        run: node scripts/submit-store.mjs chrome "dist/${{ needs.validate-and-package.outputs.chromium_zip }}"
 
   submit-edge:
     name: Submit to Microsoft Edge Add-ons
-    needs: build-and-release
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate-and-package
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     environment: browser-stores
     steps:
+      - name: Check out submission scripts
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
       - name: Check Microsoft Edge Add-ons configuration
         id: config
         shell: bash
@@ -196,29 +229,15 @@ jobs:
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
-        run: |
-          if [[ -n "$EDGE_CLIENT_ID" && -n "$EDGE_API_KEY" && -n "$EDGE_PRODUCT_ID" ]]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Microsoft Edge Add-ons submission skipped because its secrets or variables are not configured."
-          fi
-
-      - name: Check out submission script
-        if: steps.config.outputs.enabled == 'true'
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Set up Node.js
-        if: steps.config.outputs.enabled == 'true'
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
+        run: >-
+          node scripts/check-store-configuration.mjs "Microsoft Edge Add-ons"
+          EDGE_CLIENT_ID EDGE_API_KEY EDGE_PRODUCT_ID
 
       - name: Download browser packages
         if: steps.config.outputs.enabled == 'true'
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
+          name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
           path: dist
 
       - name: Upload and submit Edge package
@@ -227,45 +246,42 @@ jobs:
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
-          EDGE_PUBLISH_NOTES: Release ${{ needs.build-and-release.outputs.version }} from GitHub Actions.
-        run: node scripts/submit-store.mjs edge "dist/${{ needs.build-and-release.outputs.chromium_zip }}"
+          EDGE_PUBLISH_NOTES: Release ${{ needs.validate-and-package.outputs.version }} from GitHub Actions.
+        run: node scripts/submit-store.mjs edge "dist/${{ needs.validate-and-package.outputs.chromium_zip }}"
 
   submit-firefox:
     name: Submit to Firefox Add-ons
-    needs: build-and-release
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate-and-package
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     environment: browser-stores
     steps:
+      - name: Check out AMO metadata and scripts
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
       - name: Check Firefox Add-ons configuration
         id: config
         shell: bash
         env:
           WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
           WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
-        run: |
-          if [[ -n "$WEB_EXT_API_KEY" && -n "$WEB_EXT_API_SECRET" ]]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Firefox Add-ons submission skipped because its secrets are not configured."
-          fi
-
-      - name: Check out AMO metadata
-        if: steps.config.outputs.enabled == 'true'
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Set up Node.js
-        if: steps.config.outputs.enabled == 'true'
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
+        run: >-
+          node scripts/check-store-configuration.mjs "Firefox Add-ons"
+          WEB_EXT_API_KEY WEB_EXT_API_SECRET
 
       - name: Download browser packages
         if: steps.config.outputs.enabled == 'true'
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: browser-extension-packages-${{ needs.build-and-release.outputs.version }}
+          name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
           path: dist
 
       - name: Extract Firefox package
@@ -273,7 +289,7 @@ jobs:
         shell: bash
         run: |
           mkdir firefox-source
-          unzip -q "dist/${{ needs.build-and-release.outputs.firefox_zip }}" -d firefox-source
+          unzip -q "dist/${{ needs.validate-and-package.outputs.firefox_zip }}" -d firefox-source
 
       - name: Install pinned Firefox submission tooling
         if: steps.config.outputs.enabled == 'true'
@@ -288,3 +304,36 @@ jobs:
           WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
           WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
         run: pnpm exec web-ext sign --source-dir firefox-source --channel listed --amo-metadata amo-metadata.json --approval-timeout 0 --no-input
+
+  publish-release:
+    name: Publish GitHub Release
+    if: github.event_name == 'workflow_dispatch'
+    needs:
+      - validate-and-package
+      - submit-chrome
+      - submit-edge
+      - submit-firefox
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download browser packages
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
+          path: dist
+
+      - name: Create GitHub Release after store submissions
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          tag_name: ${{ needs.validate-and-package.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ needs.validate-and-package.outputs.tag }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            dist/${{ needs.validate-and-package.outputs.chromium_zip }}
+            dist/${{ needs.validate-and-package.outputs.firefox_zip }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
