@@ -6,6 +6,7 @@ import {
   CHROME_UPLOAD_STATES,
   getChromeUploadState
 } from './chrome-upload-state.mjs';
+import { EDGE_OPERATION_STATES, getEdgeOperationState } from './edge-operation-state.mjs';
 
 test('reads SUCCEEDED from the immediate Chrome upload response', () => {
   assert.equal(
@@ -49,4 +50,16 @@ test('rejects responses with no recognized state field before publishing', () =>
   assert.equal(getChromeUploadState(null), '');
   assert.throws(() => assertChromeUploadSucceeded({}), /Chrome upload did not succeed/);
   assert.throws(() => assertChromeUploadSucceeded(null), /Chrome upload did not succeed/);
+});
+
+test('reads every supported Edge operation state exactly', () => {
+  for (const state of Object.values(EDGE_OPERATION_STATES)) {
+    assert.equal(getEdgeOperationState({ status: state }), state);
+  }
+});
+
+test('returns an empty Edge operation state for malformed responses', () => {
+  assert.equal(getEdgeOperationState({}), '');
+  assert.equal(getEdgeOperationState({ status: 1 }), '');
+  assert.equal(getEdgeOperationState(null), '');
 });

@@ -6,6 +6,7 @@ import {
   CHROME_UPLOAD_STATES,
   getChromeUploadState
 } from './chrome-upload-state.mjs';
+import { EDGE_OPERATION_STATES, getEdgeOperationState } from './edge-operation-state.mjs';
 
 const API_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 5_000;
@@ -123,16 +124,16 @@ const submitEdge = async () => {
   const pollOperation = async (url, label) => {
     for (let attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt++) {
       const { body } = await request(url, { headers: authorization });
-      const status = String(body?.status ?? '');
+      const status = getEdgeOperationState(body);
 
-      if (status === 'Succeeded') {
+      if (status === EDGE_OPERATION_STATES.SUCCEEDED) {
         console.log(`${label} succeeded.`);
         return;
       }
-      if (status === 'Failed') {
+      if (status === EDGE_OPERATION_STATES.FAILED) {
         throw new Error(`${label} failed: ${JSON.stringify(body)}`);
       }
-      if (status !== 'InProgress') {
+      if (status !== EDGE_OPERATION_STATES.IN_PROGRESS) {
         throw new Error(`${label} returned an unknown status: ${JSON.stringify(body)}`);
       }
 
