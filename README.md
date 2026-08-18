@@ -52,6 +52,13 @@ The Chrome credentials need the `https://www.googleapis.com/auth/chromewebstore`
 
 Chrome and Edge products must be created in their developer dashboards before the first automated update. Firefox uses `amo-metadata.json` to create the initial AMO listing when necessary and to provide update metadata afterward.
 
+Chrome Web Store listing metadata is managed in the Developer Dashboard and is not populated by the submission API. Complete and save every required Store listing and Privacy practices field before running a release. Tabby Paste uses these permission justifications:
+
+- `storage`: Stores the user’s Tabby Paste preferences—including enabled URL patterns, paste delay, select-option behavior, and extension enabled state—in `chrome.storage.sync` so they persist and can sync through the user’s Chrome account. Tabby Paste does not send this data to developer-controlled servers.
+- `tabs`: Uses tab IDs and URLs to determine whether Tabby Paste is enabled for each tab, update the toolbar icon and badge, and inject the paste helper only into the user-selected eligible tab. It also opens the extension settings and shortcut pages. Tabby Paste does not transmit browsing data to developer-controlled servers.
+
+When Chrome returns `INVALID_ITEM_METADATA`, open the edit-item link from the Actions error, complete the fields identified by **Why can't I submit?**, and save the draft before retrying the failed Chrome job.
+
 For an approval gate before credentials become available to the jobs, configure required reviewers on the `browser-stores` Environment.
 
 The workflow installs the exact `web-ext` version recorded in `package.json` and `pnpm-lock.yaml`. Update both files together when upgrading the Firefox submission tooling.

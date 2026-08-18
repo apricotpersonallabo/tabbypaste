@@ -6,6 +6,11 @@ import {
   CHROME_UPLOAD_STATES,
   getChromeUploadState
 } from './chrome-upload-state.mjs';
+import {
+  assertChromePublishSubmitted,
+  formatChromePublishError,
+  getChromePublishWarnings
+} from './chrome-publish-state.mjs';
 import { EDGE_OPERATION_STATES, getEdgeOperationState } from './edge-operation-state.mjs';
 
 const API_TIMEOUT_MS = 30_000;
@@ -29,7 +34,7 @@ const requiredEnvironment = (name) => {
 
 const sleep = (milliseconds) => new Promise(resolvePromise => setTimeout(resolvePromise, milliseconds));
 
-const request = async (url, options = {}) => {
+const request = async (url, options = {}, errorFormatter) => {
   const response = await fetch(url, {
     ...options,
     signal: AbortSignal.timeout(API_TIMEOUT_MS)
@@ -46,7 +51,8 @@ const request = async (url, options = {}) => {
   }
 
   if (!response.ok) {
-    const detail = typeof body === 'string' ? body : JSON.stringify(body);
+    const formattedError = errorFormatter?.(body);
+    const detail = formattedError || (typeof body === 'string' ? body : JSON.stringify(body));
     throw new Error(`${options.method ?? 'GET'} ${url} failed (${response.status}): ${detail}`);
   }
 
@@ -101,11 +107,21 @@ const submitChrome = async () => {
 
   assertChromeUploadSucceeded(uploadResult);
 
-  await request(publishUrl, {
+  const { body: publishResult } = await request(publishUrl, {
     method: 'POST',
     headers: authorization
-  });
-  console.log('Chrome Web Store update was submitted for review.');
+  }, formatChromePublishError);
+
+  assertChromePublishSubmitted(publishResult);
+  for (const warning of getChromePublishWarnings(publishResult)) {
+    const reason = typeof warning.reason === 'string' ? `${warning.reason}: ` : '';
+    console.warn(`Chrome publish warning: ${reason}${warning.description ?? ''}`);
+  }
+
+  const version = typeof uploadResult?.crxVersion === 'string'
+    ? ` version ${uploadResult.crxVersion}`
+    : '';
+  console.log(`Chrome Web Store${version} entered the review queue (state=${publishResult.state}).`);
 };
 
 const submitEdge = async () => {
