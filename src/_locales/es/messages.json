@@ -81,5 +81,53 @@
     },
     "optionsResetDone": {
         "message": "Restablecido a los valores predeterminados."
+    },
+    "welcomePageTitle": {
+        "message": "Te damos la bienvenida a Tabby Paste"
+    },
+    "welcomeHeading": {
+        "message": "Tabby Paste está listo"
+    },
+    "welcomeIntro": {
+        "message": "Pega valores del portapapeles separados por tabulaciones en formularios web en tres pasos."
+    },
+    "welcomeStepCopyTitle": {
+        "message": "Copiar datos separados por tabulaciones"
+    },
+    "welcomeStepCopyDescription": {
+        "message": "Copia una fila de una hoja de cálculo u otro texto separado por tabulaciones."
+    },
+    "welcomeStepFocusTitle": {
+        "message": "Enfocar el primer campo"
+    },
+    "welcomeStepFocusDescription": {
+        "message": "Haz clic en el primer campo que quieras rellenar en el formulario web."
+    },
+    "welcomeStepRunTitle": {
+        "message": "Ejecutar Tabby Paste"
+    },
+    "welcomeStepRunDescription": {
+        "message": "Usa el atajo actual o elige Tabby Paste en el menú contextual de la página."
+    },
+    "welcomeCurrentShortcut": {
+        "message": "Atajo actual:"
+    },
+    "welcomeShortcutLoading": {
+        "message": "Cargando..."
+    },
+    "welcomeShortcutNotSet": {
+        "message": "Sin configurar"
+    },
+    "welcomeShortcutUnavailable": {
+        "message": "No disponible"
+    },
+    "welcomeOpenSettings": {
+        "message": "Abrir configuración"
+    },
+    "welcomeViewManual": {
+        "message": "Ver el manual"
+    },
+    "welcomeClose": {
+        "message": "Cerrar"
     }
 }

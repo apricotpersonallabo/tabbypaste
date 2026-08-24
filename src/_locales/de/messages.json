@@ -81,5 +81,53 @@
     },
     "optionsResetDone": {
         "message": "Auf Standardwerte zurückgesetzt."
+    },
+    "welcomePageTitle": {
+        "message": "Willkommen bei Tabby Paste"
+    },
+    "welcomeHeading": {
+        "message": "Tabby Paste ist einsatzbereit"
+    },
+    "welcomeIntro": {
+        "message": "Fügen Sie tabulatorgetrennte Werte aus der Zwischenablage in drei Schritten in Webformulare ein."
+    },
+    "welcomeStepCopyTitle": {
+        "message": "Tabulatorgetrennte Daten kopieren"
+    },
+    "welcomeStepCopyDescription": {
+        "message": "Kopieren Sie eine Zeile aus einer Tabelle oder anderen tabulatorgetrennten Text."
+    },
+    "welcomeStepFocusTitle": {
+        "message": "Erstes Feld fokussieren"
+    },
+    "welcomeStepFocusDescription": {
+        "message": "Klicken Sie im Webformular auf das erste Feld, das Sie ausfüllen möchten."
+    },
+    "welcomeStepRunTitle": {
+        "message": "Tabby Paste ausführen"
+    },
+    "welcomeStepRunDescription": {
+        "message": "Verwenden Sie das aktuelle Tastenkürzel oder wählen Sie Tabby Paste im Kontextmenü der Seite."
+    },
+    "welcomeCurrentShortcut": {
+        "message": "Aktuelles Tastenkürzel:"
+    },
+    "welcomeShortcutLoading": {
+        "message": "Wird geladen..."
+    },
+    "welcomeShortcutNotSet": {
+        "message": "Nicht festgelegt"
+    },
+    "welcomeShortcutUnavailable": {
+        "message": "Nicht verfügbar"
+    },
+    "welcomeOpenSettings": {
+        "message": "Einstellungen öffnen"
+    },
+    "welcomeViewManual": {
+        "message": "Handbuch anzeigen"
+    },
+    "welcomeClose": {
+        "message": "Schließen"
     }
 }

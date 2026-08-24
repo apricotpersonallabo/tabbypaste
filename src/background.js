@@ -110,13 +110,21 @@ const refreshAllTabs = async () => {
   await Promise.all(tabs.map(tab => updateTabState(tab.id, tab.url).catch(() => {})));
 };
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   chrome.contextMenus.create({
     id: 'tabbypaste',
     title: chrome.i18n.getMessage('contextMenuTitle'),
     contexts: ['all']
   });
   refreshAllTabs();
+
+  if (details.reason === 'install') {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('welcome.html')
+    }).catch(error => {
+      console.error('Failed to open the welcome page:', error);
+    });
+  }
 });
 
 chrome.runtime.onStartup.addListener(refreshAllTabs);

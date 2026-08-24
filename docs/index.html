@@ -1,544 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabby Paste - Chrome Extension</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --gray-light: #f2f2f2;
-            --gray-border: #ccc;
-            --gray-dark: #333;
-            --blue-link: #0366d6;
-            --blue-bg: #f0f7ff;
-            --green-accent: #28a745;
-            --bg-hover: #eef;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: #fff;
-            line-height: 1.6;
-        }
-
-        /* Header */
-        header {
-            background-color: #f5f5f5;
-            border-bottom: 1px solid var(--gray-border);
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .logo a {
-            color: #333;
-            text-decoration: none;
-        }
-
-        .logo a:hover {
-            color: var(--blue-link);
-        }
-
-        .lang-switcher {
-            display: flex;
-            gap: 8px;
-        }
-
-        .lang-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--gray-border);
-            background-color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .lang-btn.active {
-            background-color: var(--blue-link);
-            color: white;
-            border-color: var(--blue-link);
-        }
-
-        .lang-btn:hover {
-            border-color: var(--blue-link);
-        }
-
-        /* Breadcrumb */
-        .breadcrumb {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .breadcrumb a {
-            color: var(--blue-link);
-            text-decoration: none;
-        }
-
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        .breadcrumb span {
-            margin: 0 4px;
-        }
-
-        /* Main content */
-        main {
-            flex: 1;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-
-        h1 {
-            font-size: 32px;
-            margin-bottom: 16px;
-            color: #333;
-        }
-
-        h2 {
-            font-size: 24px;
-            margin-bottom: 16px;
-            margin-top: 32px;
-            color: #333;
-        }
-
-        h3 {
-            font-size: 18px;
-            margin-bottom: 12px;
-            color: #333;
-        }
-
-        p {
-            margin-bottom: 12px;
-            color: #555;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 48px 16px;
-            border-radius: 8px;
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .hero h1 {
-            color: white;
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        .hero p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 18px;
-            margin-bottom: 24px;
-        }
-
-        .btn-primary {
-            display: inline-block;
-            background-color: white;
-            color: #667eea;
-            padding: 12px 24px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Features Grid */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-
-        .feature-card {
-            background-color: var(--blue-bg);
-            border: 1px solid var(--gray-border);
-            border-radius: 8px;
-            padding: 24px;
-            transition: all 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-color: var(--blue-link);
-        }
-
-        .feature-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-        }
-
-        .feature-card h3 {
-            margin-top: 0;
-        }
-
-        .feature-card p {
-            color: #666;
-        }
-
-        /* How it works */
-        .how-it-works {
-            background-color: var(--gray-light);
-            padding: 32px;
-            border-radius: 8px;
-            margin-bottom: 40px;
-        }
-
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-        }
-
-        .step {
-            background-color: white;
-            padding: 20px;
-            border-radius: 6px;
-            border-left: 4px solid var(--blue-link);
-        }
-
-        .step-number {
-            display: inline-block;
-            background-color: var(--blue-link);
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 32px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        /* Links */
-        a {
-            color: var(--blue-link);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #f5f5f5;
-            border-top: 1px solid var(--gray-border);
-            padding: 24px 16px;
-            margin-top: 40px;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-        }
-
-        footer a {
-            color: var(--blue-link);
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 24px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
-
-            .hero {
-                padding: 32px 16px;
-            }
-
-            .hero h1 {
-                font-size: 28px;
-            }
-
-            .hero p {
-                font-size: 16px;
-            }
-
-            main {
-                padding: 0 16px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            main {
-                padding: 0 40px;
-            }
-
-            .hero {
-                padding: 64px 40px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Paste one row of tab-separated clipboard values into successive web form fields with Tabby Paste." />
+  <title>Tabby Paste — One row, every field</title>
+  <link rel="icon" href="assets/images/icon128.png" />
+  <link rel="stylesheet" href="assets/site.css?v=2" />
 </head>
-<body>
+<body data-page="index">
+  <a class="skip-link" href="#main" data-i18n="common.skip">Skip to content</a>
 
-<header>
-    <div class="header-content">
-        <div class="header-top">
-            <div class="logo">
-                <a href="index.html" data-i18n="header.title">Tabby Paste</a>
-            </div>
-            <div class="lang-switcher">
-                <button class="lang-btn" data-lang="ja">日本語</button>
-                <button class="lang-btn active" data-lang="en">English</button>
-            </div>
-        </div>
-        <div class="breadcrumb">
-            <span data-i18n="breadcrumb.home">Home</span>
-        </div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" data-preserve-language>
+        <img src="assets/images/icon128.png" width="34" height="34" alt="" aria-hidden="true" />
+        <span>Tabby Paste</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary" data-i18n-aria-label="common.primaryNav">
+        <a href="#overview" data-i18n="common.navOverview">Overview</a>
+        <a href="manual.html#quick-start" data-preserve-language data-i18n="common.navGuide">Guide</a>
+        <a href="#install" data-i18n="common.navInstall">Install</a>
+        <a href="#support" data-i18n="common.navSupport">Support</a>
+      </nav>
+      <div class="language-control">
+        <label for="languageSelect" data-i18n="common.languageLabel">Language</label>
+        <select id="languageSelect" aria-label="Language" data-i18n-aria-label="common.languageLabel">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+          <option value="es">Español</option>
+          <option value="ko">한국어</option>
+          <option value="zh-CN">简体中文</option>
+          <option value="zh-TW">繁體中文</option>
+        </select>
+      </div>
     </div>
-</header>
+  </header>
 
-<main>
-    <section class="hero">
-        <h1 data-i18n="home.title">Tabby Paste</h1>
-        <p data-i18n="home.subtitle">Copy and paste data efficiently from web pages with Tabby Paste extension</p>
-        <a href="manual.html" class="btn-primary" data-i18n="home.getStarted">Get Started</a>
+  <main id="main">
+    <section class="hero" id="overview">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow" data-i18n="index.hero.eyebrow">One row in. Every field filled.</p>
+          <h1 data-i18n="index.hero.title">Move a spreadsheet row into a web form.</h1>
+          <p class="hero-copy" data-i18n="index.hero.description">Copy one tab-separated row, focus the first field, and let Tabby Paste fill the rest in order.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#install" data-i18n="index.hero.primary">Install Tabby Paste</a>
+            <a class="button button-secondary" href="manual.html#quick-start" data-preserve-language data-i18n="index.hero.secondary">See how it works</a>
+          </div>
+          <ul class="trust-list" aria-label="Product facts" data-i18n-aria-label="index.hero.factsLabel">
+            <li data-i18n="index.hero.browsers">Chrome, Edge & Firefox</li>
+            <li data-i18n="index.hero.languages">7 interface languages</li>
+            <li data-i18n="index.hero.privacy">No data collection</li>
+          </ul>
+        </div>
+        <figure class="media-frame hero-media">
+          <img src="assets/images/welcome.webp" width="1280" height="800" alt="Tabby Paste welcome page" data-i18n-alt="index.hero.imageAlt" />
+          <figcaption class="media-caption" data-i18n="index.hero.imageCaption">A short guide appears after the first installation.</figcaption>
+        </figure>
+      </div>
     </section>
 
-    <h2 data-i18n="home.aboutTitle">About Tabby Paste</h2>
-    <p data-i18n="home.aboutDescription">
-        Tabby Paste is a lightweight Chrome extension that helps you copy and paste data efficiently between web pages and applications. Whether you're working with tables, forms, or structured data, Tabby Paste makes the process seamless and intuitive.
-    </p>
-
-    <section class="features">
-        <div class="feature-card">
-            <div class="feature-icon">📋</div>
-            <h3 data-i18n="home.feature1Title">Easy Data Copy</h3>
-            <p data-i18n="home.feature1Desc">Click any row in a table to copy data in TSV format, ready to paste into spreadsheets and forms.</p>
+    <section class="section section-tinted" id="quick-start">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker" data-i18n="index.quick.kicker">Three steps</p>
+          <h2 data-i18n="index.quick.title">From clipboard to form in seconds.</h2>
+          <p data-i18n="index.quick.description">Tabby Paste works one row at a time and follows the visible form fields from the one you focus.</p>
         </div>
-
-        <div class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3 data-i18n="home.feature2Title">Lightweight & Fast</h3>
-            <p data-i18n="home.feature2Desc">No external dependencies or heavy libraries. Pure JavaScript for lightning-fast performance.</p>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-icon">🎨</div>
-            <h3 data-i18n="home.feature3Title">Simple Interface</h3>
-            <p data-i18n="home.feature3Desc">Intuitive design that works with any website. Just click on the data you want to copy.</p>
-        </div>
+        <ol class="step-grid">
+          <li class="step-card">
+            <h3 data-i18n="index.quick.copyTitle">Copy one row</h3>
+            <p data-i18n="index.quick.copyDescription">Select a single row in Excel, Google Sheets, or another table and copy it.</p>
+          </li>
+          <li class="step-card">
+            <h3 data-i18n="index.quick.focusTitle">Focus the first field</h3>
+            <p data-i18n="index.quick.focusDescription">Click the first text field, textarea, password field, or select you want to fill.</p>
+          </li>
+          <li class="step-card">
+            <h3 data-i18n="index.quick.runTitle">Run Tabby Paste</h3>
+            <p data-i18n="index.quick.runDescription">Use the keyboard shortcut or choose Tabby Paste from the page's context menu.</p>
+          </li>
+        </ol>
+      </div>
     </section>
 
-    <section class="how-it-works">
-        <h2 data-i18n="home.howItWorks">How It Works</h2>
-        <div class="steps">
-            <div class="step">
-                <div class="step-number">1</div>
-                <h3 data-i18n="home.step1Title">Install</h3>
-                <p data-i18n="home.step1Desc">Add Tabby Paste to your Chrome browser from the Chrome Web Store.</p>
-            </div>
-
-            <div class="step">
-                <div class="step-number">2</div>
-                <h3 data-i18n="home.step2Title">Use</h3>
-                <p data-i18n="home.step2Desc">Click on any table row or data element to automatically copy it in TSV format.</p>
-            </div>
-
-            <div class="step">
-                <div class="step-number">3</div>
-                <h3 data-i18n="home.step3Title">Paste</h3>
-                <p data-i18n="home.step3Desc">Paste the copied data into your spreadsheet, form, or any other application.</p>
-            </div>
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker" data-i18n="index.features.kicker">Built for real forms</p>
+          <h2 data-i18n="index.features.title">Control where and how values are entered.</h2>
+          <p data-i18n="index.features.description">The extension stays small, but includes the controls needed for dynamic business forms.</p>
         </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-mark" aria-hidden="true"></div>
+            <h3 data-i18n="index.features.fieldsTitle">Text fields, textareas, and selects</h3>
+            <p data-i18n="index.features.fieldsDescription">Values move through visible, editable fields in page order, replacing the current value as they go.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-mark" aria-hidden="true"></div>
+            <h3 data-i18n="index.features.scopeTitle">Enable only the sites you choose</h3>
+            <p data-i18n="index.features.scopeDescription">Use wildcard URL patterns and the toolbar popup to limit or pause the extension.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-mark" aria-hidden="true"></div>
+            <h3 data-i18n="index.features.selectTitle">Resilient select matching</h3>
+            <p data-i18n="index.features.selectDescription">Tabby Paste matches option values or labels and can wait briefly for dynamically rendered options.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-mark" aria-hidden="true"></div>
+            <h3 data-i18n="index.features.backupTitle">Portable settings</h3>
+            <p data-i18n="index.features.backupDescription">Export enabled URLs, delay, and select-wait preferences as TOML, then import them later.</p>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <h2 data-i18n="home.installTitle">Install</h2>
-    <p data-i18n="home.installDesc">Install Tabby Paste from your browser's extension store:</p>
-    <ul style="margin-bottom: 40px; margin-left: 20px;">
-        <li><a href="https://chromewebstore.google.com/detail/tabby-paste/pnfhlnlilceabibdeamkinhjjgmmnhme" target="_blank" rel="noopener" data-i18n="home.installChrome">Chrome Web Store</a></li>
-        <li><a href="https://microsoftedge.microsoft.com/addons/detail/tabby-paste/gjkopcpoddbifofepjnopohpcoeehlbg" target="_blank" rel="noopener" data-i18n="home.installEdge">Microsoft Edge Add-ons</a></li>
-    </ul>
+    <section class="section section-blue" id="privacy">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker" data-i18n="index.privacy.kicker">Private by design</p>
+          <h2 data-i18n="index.privacy.title">Your clipboard data stays in your browser.</h2>
+          <p data-i18n="index.privacy.description">Tabby Paste has no account, analytics, ads, or developer-controlled server.</p>
+        </div>
+        <div class="trust-grid">
+          <article class="trust-card">
+            <h3 data-i18n="index.privacy.localTitle">Local processing</h3>
+            <p data-i18n="index.privacy.localDescription">Clipboard values are read only when you run the extension and are applied to the active page.</p>
+          </article>
+          <article class="trust-card">
+            <h3 data-i18n="index.privacy.syncTitle">Browser-managed sync</h3>
+            <p data-i18n="index.privacy.syncDescription">Preferences use the browser's sync storage and are never sent to the developer.</p>
+          </article>
+          <article class="trust-card">
+            <h3 data-i18n="index.privacy.openTitle">Open source</h3>
+            <p data-i18n="index.privacy.openDescription">The complete source is public under the Apache License 2.0.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-    <h2 data-i18n="home.supportedLanguages">Supported Languages</h2>
-    <p data-i18n="home.languagesDesc">Tabby Paste supports multiple languages for better accessibility:</p>
-    <ul style="margin-bottom: 40px; margin-left: 20px;">
-        <li>Japanese (日本語)</li>
-        <li>English</li>
-        <li>German (Deutsch)</li>
-        <li>Spanish (Español)</li>
-        <li>Korean (한국어)</li>
-        <li>Simplified Chinese (简体中文)</li>
-        <li>Traditional Chinese (繁体中文)</li>
-    </ul>
+    <section class="section" id="install">
+      <div class="container">
+        <div class="section-heading">
+          <p class="section-kicker" data-i18n="index.install.kicker">Get the extension</p>
+          <h2 data-i18n="index.install.title">Install from your browser's store.</h2>
+          <p data-i18n="index.install.description">Choose the official listing for your browser. Store releases may arrive at slightly different times.</p>
+        </div>
+        <div class="store-grid">
+          <article class="store-card">
+            <span class="tag">Chrome</span>
+            <h3>Chrome Web Store</h3>
+            <p data-i18n="index.install.chromeDescription">For Google Chrome and compatible Chromium browsers.</p>
+            <a class="button button-primary" href="https://chromewebstore.google.com/detail/tabby-paste/pnfhlnlilceabibdeamkinhjjgmmnhme" target="_blank" rel="noopener noreferrer" data-i18n="index.install.action">Open store</a>
+          </article>
+          <article class="store-card">
+            <span class="tag">Edge</span>
+            <h3>Microsoft Edge Add-ons</h3>
+            <p data-i18n="index.install.edgeDescription">The official listing for Microsoft Edge.</p>
+            <a class="button button-primary" href="https://microsoftedge.microsoft.com/addons/detail/tabby-paste/gjkopcpoddbifofepjnopohpcoeehlbg" target="_blank" rel="noopener noreferrer" data-i18n="index.install.action">Open store</a>
+          </article>
+          <article class="store-card">
+            <span class="tag">Firefox</span>
+            <h3>Firefox Add-ons</h3>
+            <p data-i18n="index.install.firefoxDescription">The Mozilla-hosted version for Firefox.</p>
+            <a class="button button-primary" href="https://addons.mozilla.org/en-US/firefox/addon/tabby-paste/" target="_blank" rel="noopener noreferrer" data-i18n="index.install.action">Open store</a>
+          </article>
+        </div>
+      </div>
+    </section>
 
-    <h2 data-i18n="home.learnMore">Learn More</h2>
-    <p>
-        <a href="manual.html" data-i18n="home.viewManual">View the User Manual</a> <span data-i18n="home.forMore">for detailed information on how to use Tabby Paste and explore its features.</span>
-    </p>
+    <section class="section section-compact" id="support">
+      <div class="container support-panel">
+        <div>
+          <h2 data-i18n="index.support.title">Need setup help or found a problem?</h2>
+          <p data-i18n="index.support.description">The guide covers every setting and common error. For bugs and requests, open an issue on GitHub.</p>
+        </div>
+        <div class="section-actions">
+          <a class="button button-primary" href="manual.html" data-preserve-language data-i18n="index.support.guideAction">Read the guide</a>
+          <a class="button button-secondary" href="https://github.com/apricotpersonallabo/tabbypaste/issues" target="_blank" rel="noopener noreferrer" data-i18n="index.support.issueAction">GitHub Issues</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <p style="margin-top: 24px;">
-        <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener" data-i18n="home.viewSource">View the source code on GitHub</a>
-    </p>
-</main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="index.html" data-preserve-language>
+          <img src="assets/images/icon128.png" width="34" height="34" alt="" aria-hidden="true" />
+          <span>Tabby Paste</span>
+        </a>
+        <p class="footer-copy"><span data-i18n="common.footerTagline">One spreadsheet row, every field.</span> · © 2024–<span data-current-year></span></p>
+      </div>
+      <nav class="footer-links" aria-label="Footer" data-i18n-aria-label="common.footerNav">
+        <a href="manual.html" data-preserve-language data-i18n="common.navGuide">Guide</a>
+        <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener noreferrer" data-i18n="common.source">Source</a>
+        <a href="https://github.com/apricotpersonallabo/tabbypaste/issues" target="_blank" rel="noopener noreferrer" data-i18n="common.issues">Issues</a>
+        <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" data-i18n="common.license">License</a>
+      </nav>
+    </div>
+  </footer>
 
-<footer>
-    <p>&copy; 2024-2025 <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener">Tabby Paste</a>. All rights reserved.</p>
-</footer>
-
-<script>
-// i18n translations
-const translations = {
-    ja: {
-        'header.title': 'Tabby Paste',
-        'breadcrumb.home': 'ホーム',
-        'home.title': 'Tabby Paste',
-        'home.subtitle': 'Webページからのデータのコピーと貼り付けを効率的に行うChrome拡張機能',
-        'home.getStarted': '始める',
-        'home.aboutTitle': 'Tabby Pasteについて',
-        'home.aboutDescription': 'Tabby PasteはWebページとアプリケーション間でデータを効率的にコピーして貼り付けるのに役立つ軽量なChrome拡張機能です。テーブル、フォーム、構造化されたデータを操作している場合でも、Tabby Pasteはプロセスをシームレスで直感的にします。',
-        'home.feature1Title': '簡単なデータコピー',
-        'home.feature1Desc': 'テーブル内の任意の行をクリックしてTSV形式でデータをコピーし、スプレッドシートやフォームに貼り付ける準備ができます。',
-        'home.feature2Title': '軽量で高速',
-        'home.feature2Desc': '外部依存関係や重いライブラリはありません。純粋なJavaScriptで高速のパフォーマンスを実現します。',
-        'home.feature3Title': 'シンプルなインターフェース',
-        'home.feature3Desc': 'どのWebサイトでも動作する直感的なデザイン。コピーしたいデータをクリックするだけです。',
-        'home.howItWorks': '使い方',
-        'home.step1Title': 'インストール',
-        'home.step1Desc': 'Chrome Web StoreからTabby PasteをChromeブラウザに追加します。',
-        'home.step2Title': '使用',
-        'home.step2Desc': 'テーブル行またはデータ要素をクリックして、自動的にTSV形式でコピーします。',
-        'home.step3Title': '貼り付け',
-        'home.step3Desc': 'コピーしたデータをスプレッドシート、フォーム、または他のアプリケーションに貼り付けます。',
-        'home.installTitle': 'インストール',
-        'home.installDesc': 'お使いのブラウザの拡張機能ストアからTabby Pasteをインストールしてください：',
-        'home.installChrome': 'Chrome ウェブストア',
-        'home.installEdge': 'Microsoft Edge アドオン',
-        'home.supportedLanguages': 'サポートされている言語',
-        'home.languagesDesc': 'Tabby Pasteはアクセシビリティを向上させるために複数の言語をサポートしています：',
-        'home.learnMore': 'さらに詳しく',
-        'home.viewManual': 'ユーザーマニュアルを表示',
-        'home.forMore': 'Tabby Pasteの使用方法と機能の詳細情報をご覧ください。',
-        'home.viewSource': 'GitHubでソースコードを表示'
-    },
-    en: {
-        'header.title': 'Tabby Paste',
-        'breadcrumb.home': 'Home',
-        'home.title': 'Tabby Paste',
-        'home.subtitle': 'Copy and paste data efficiently from web pages with Tabby Paste extension',
-        'home.getStarted': 'Get Started',
-        'home.aboutTitle': 'About Tabby Paste',
-        'home.aboutDescription': 'Tabby Paste is a lightweight Chrome extension that helps you copy and paste data efficiently between web pages and applications. Whether you\'re working with tables, forms, or structured data, Tabby Paste makes the process seamless and intuitive.',
-        'home.feature1Title': 'Easy Data Copy',
-        'home.feature1Desc': 'Click any row in a table to copy data in TSV format, ready to paste into spreadsheets and forms.',
-        'home.feature2Title': 'Lightweight & Fast',
-        'home.feature2Desc': 'No external dependencies or heavy libraries. Pure JavaScript for lightning-fast performance.',
-        'home.feature3Title': 'Simple Interface',
-        'home.feature3Desc': 'Intuitive design that works with any website. Just click on the data you want to copy.',
-        'home.howItWorks': 'How It Works',
-        'home.step1Title': 'Install',
-        'home.step1Desc': 'Add Tabby Paste to your Chrome browser from the Chrome Web Store.',
-        'home.step2Title': 'Use',
-        'home.step2Desc': 'Click on any table row or data element to automatically copy it in TSV format.',
-        'home.step3Title': 'Paste',
-        'home.step3Desc': 'Paste the copied data into your spreadsheet, form, or any other application.',
-        'home.installTitle': 'Install',
-        'home.installDesc': 'Install Tabby Paste from your browser\'s extension store:',
-        'home.installChrome': 'Chrome Web Store',
-        'home.installEdge': 'Microsoft Edge Add-ons',
-        'home.supportedLanguages': 'Supported Languages',
-        'home.languagesDesc': 'Tabby Paste supports multiple languages for better accessibility:',
-        'home.learnMore': 'Learn More',
-        'home.viewManual': 'View the User Manual',
-        'home.forMore': 'for detailed information on how to use Tabby Paste and explore its features.',
-        'home.viewSource': 'View the source code on GitHub'
-    }
-};
-
-// Get current language from localStorage or default
-let currentLang = localStorage.getItem('lang') || 'en';
-
-// Initialize language
-function initializeLanguage() {
-    // Set HTML lang attribute
-    document.documentElement.lang = currentLang;
-    
-    // Update active button
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.lang === currentLang) {
-            btn.classList.add('active');
-        }
-    });
-    
-    updateTranslations();
-}
-
-// Update all translations on page
-function updateTranslations() {
-    document.querySelectorAll('[data-i18n]').forEach(elem => {
-        const key = elem.dataset.i18n;
-        const translation = translations[currentLang][key];
-        if (translation) {
-            elem.textContent = translation;
-        }
-    });
-}
-
-// Language switcher
-document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        currentLang = e.target.dataset.lang;
-        localStorage.setItem('lang', currentLang);
-        initializeLanguage();
-    });
-});
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', initializeLanguage);
-</script>
-
+  <script src="assets/translations.js"></script>
+  <script src="assets/site.js"></script>
 </body>
 </html>

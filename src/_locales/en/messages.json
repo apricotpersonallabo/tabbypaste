@@ -155,5 +155,53 @@
     },
     "optionsShortcutUnavailable": {
         "message": "Unavailable"
+    },
+    "welcomePageTitle": {
+        "message": "Welcome to Tabby Paste"
+    },
+    "welcomeHeading": {
+        "message": "Tabby Paste is ready"
+    },
+    "welcomeIntro": {
+        "message": "Paste tab-separated clipboard values into web forms in three steps."
+    },
+    "welcomeStepCopyTitle": {
+        "message": "Copy tab-separated data"
+    },
+    "welcomeStepCopyDescription": {
+        "message": "Copy a row from a spreadsheet or other tab-separated text."
+    },
+    "welcomeStepFocusTitle": {
+        "message": "Focus the first field"
+    },
+    "welcomeStepFocusDescription": {
+        "message": "Click the first field you want to fill on the web form."
+    },
+    "welcomeStepRunTitle": {
+        "message": "Run Tabby Paste"
+    },
+    "welcomeStepRunDescription": {
+        "message": "Use the current shortcut or choose Tabby Paste from the page's context menu."
+    },
+    "welcomeCurrentShortcut": {
+        "message": "Current shortcut:"
+    },
+    "welcomeShortcutLoading": {
+        "message": "Loading..."
+    },
+    "welcomeShortcutNotSet": {
+        "message": "Not set"
+    },
+    "welcomeShortcutUnavailable": {
+        "message": "Unavailable"
+    },
+    "welcomeOpenSettings": {
+        "message": "Open settings"
+    },
+    "welcomeViewManual": {
+        "message": "View the manual"
+    },
+    "welcomeClose": {
+        "message": "Close"
     }
 }

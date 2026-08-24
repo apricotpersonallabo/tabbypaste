@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Tabby Paste</title>
+  <link rel="stylesheet" href="welcome.css" />
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <img src="icons/icon128.png" width="72" height="72" alt="" aria-hidden="true" />
+      <div>
+        <h1 data-i18n="welcomeHeading">Tabby Paste is ready</h1>
+        <p data-i18n="welcomeIntro">Paste tab-separated clipboard values into web forms in three steps.</p>
+      </div>
+    </header>
+
+    <ol class="steps">
+      <li>
+        <div>
+          <h2 data-i18n="welcomeStepCopyTitle">Copy tab-separated data</h2>
+          <p data-i18n="welcomeStepCopyDescription">Copy a row from a spreadsheet or other tab-separated text.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h2 data-i18n="welcomeStepFocusTitle">Focus the first field</h2>
+          <p data-i18n="welcomeStepFocusDescription">Click the first field you want to fill on the web form.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h2 data-i18n="welcomeStepRunTitle">Run Tabby Paste</h2>
+          <p data-i18n="welcomeStepRunDescription">Use the current shortcut or choose Tabby Paste from the page's context menu.</p>
+          <p class="shortcut">
+            <span data-i18n="welcomeCurrentShortcut">Current shortcut:</span>
+            <kbd id="currentShortcut" data-i18n="welcomeShortcutLoading">Loading...</kbd>
+          </p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="actions">
+      <button id="settingsButton" type="button" class="primary" data-i18n="welcomeOpenSettings">Open settings</button>
+      <a
+        href="https://apricotpersonallabo.github.io/tabbypaste/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="button-link"
+        data-i18n="welcomeViewManual"
+      >View the manual</a>
+      <button id="closeButton" type="button" class="secondary" data-i18n="welcomeClose">Close</button>
+    </div>
+  </main>
+
+  <script src="welcome.js"></script>
+</body>
+</html>

@@ -81,5 +81,53 @@
     },
     "optionsResetDone": {
         "message": "已重設為預設值。"
+    },
+    "welcomePageTitle": {
+        "message": "歡迎使用 Tabby Paste"
+    },
+    "welcomeHeading": {
+        "message": "Tabby Paste 已準備就緒"
+    },
+    "welcomeIntro": {
+        "message": "只需三個步驟，即可將剪貼簿中以定位字元分隔的值填入網頁表單。"
+    },
+    "welcomeStepCopyTitle": {
+        "message": "複製以定位字元分隔的資料"
+    },
+    "welcomeStepCopyDescription": {
+        "message": "從試算表複製一列，或複製其他以定位字元分隔的文字。"
+    },
+    "welcomeStepFocusTitle": {
+        "message": "聚焦第一個欄位"
+    },
+    "welcomeStepFocusDescription": {
+        "message": "在網頁表單中點選要填寫的第一個欄位。"
+    },
+    "welcomeStepRunTitle": {
+        "message": "執行 Tabby Paste"
+    },
+    "welcomeStepRunDescription": {
+        "message": "使用目前的快速鍵，或從頁面的右鍵選單中選擇 Tabby Paste。"
+    },
+    "welcomeCurrentShortcut": {
+        "message": "目前的快速鍵："
+    },
+    "welcomeShortcutLoading": {
+        "message": "載入中..."
+    },
+    "welcomeShortcutNotSet": {
+        "message": "未設定"
+    },
+    "welcomeShortcutUnavailable": {
+        "message": "無法使用"
+    },
+    "welcomeOpenSettings": {
+        "message": "開啟設定"
+    },
+    "welcomeViewManual": {
+        "message": "檢視使用手冊"
+    },
+    "welcomeClose": {
+        "message": "關閉"
     }
 }

@@ -81,5 +81,53 @@
     },
     "optionsResetDone": {
         "message": "已重置为默认值。"
+    },
+    "welcomePageTitle": {
+        "message": "欢迎使用 Tabby Paste"
+    },
+    "welcomeHeading": {
+        "message": "Tabby Paste 已准备就绪"
+    },
+    "welcomeIntro": {
+        "message": "只需三个步骤，即可将剪贴板中以制表符分隔的值填入网页表单。"
+    },
+    "welcomeStepCopyTitle": {
+        "message": "复制以制表符分隔的数据"
+    },
+    "welcomeStepCopyDescription": {
+        "message": "从电子表格复制一行，或复制其他以制表符分隔的文本。"
+    },
+    "welcomeStepFocusTitle": {
+        "message": "聚焦第一个字段"
+    },
+    "welcomeStepFocusDescription": {
+        "message": "在网页表单中点击要填写的第一个字段。"
+    },
+    "welcomeStepRunTitle": {
+        "message": "运行 Tabby Paste"
+    },
+    "welcomeStepRunDescription": {
+        "message": "使用当前快捷键，或从页面的右键菜单中选择 Tabby Paste。"
+    },
+    "welcomeCurrentShortcut": {
+        "message": "当前快捷键："
+    },
+    "welcomeShortcutLoading": {
+        "message": "正在加载..."
+    },
+    "welcomeShortcutNotSet": {
+        "message": "未设置"
+    },
+    "welcomeShortcutUnavailable": {
+        "message": "不可用"
+    },
+    "welcomeOpenSettings": {
+        "message": "打开设置"
+    },
+    "welcomeViewManual": {
+        "message": "查看用户手册"
+    },
+    "welcomeClose": {
+        "message": "关闭"
     }
 }

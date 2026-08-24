@@ -1,559 +1,409 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabby Paste User Manual</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --gray-light: #f2f2f2;
-            --gray-border: #ccc;
-            --gray-dark: #333;
-            --blue-link: #0366d6;
-            --bg-hover: #eef;
-            --bg-dark: rgba(0, 0, 0, 0.8);
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: #fff;
-        }
-
-        /* Header */
-        header {
-            background-color: #f5f5f5;
-            border-bottom: 1px solid var(--gray-border);
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .logo a {
-            color: #333;
-            text-decoration: none;
-        }
-
-        .logo a:hover {
-            color: var(--blue-link);
-        }
-
-        .lang-switcher {
-            display: flex;
-            gap: 8px;
-        }
-
-        .lang-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--gray-border);
-            background-color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .lang-btn.active {
-            background-color: var(--blue-link);
-            color: white;
-            border-color: var(--blue-link);
-        }
-
-        .lang-btn:hover {
-            border-color: var(--blue-link);
-        }
-
-        /* Breadcrumb */
-        .breadcrumb {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .breadcrumb a {
-            color: var(--blue-link);
-            text-decoration: none;
-        }
-
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        .breadcrumb span {
-            margin: 0 4px;
-        }
-
-        /* Main content */
-        main {
-            flex: 1;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-
-        h1, h2 {
-            margin-bottom: 12px;
-        }
-
-        h1 {
-            font-size: 28px;
-        }
-
-        h2 {
-            font-size: 20px;
-            margin-top: 24px;
-        }
-
-        .manual {
-            margin-bottom: 32px;
-        }
-
-        .manual-images {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-        }
-
-        .manual-images img {
-            width: 100%;
-            height: auto;
-            border: 1px solid var(--gray-border);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .manual-images img:hover {
-            transform: scale(1.05);
-        }
-
-        /* Form */
-        .form-container {
-            max-width: 500px;
-            margin-bottom: 32px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 4px;
-            font-weight: bold;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
-            border: 1px solid var(--gray-border);
-            border-radius: 4px;
-        }
-
-        /* Table */
-        .table-wrapper {
-            overflow-x: auto;
-            margin-top: 20px;
-            margin-bottom: 32px;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 600px;
-        }
-
-        th, td {
-            border: 1px solid var(--gray-border);
-            padding: 8px 10px;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        th {
-            background-color: var(--gray-light);
-        }
-
-        tbody tr {
-            cursor: pointer;
-        }
-
-        tbody tr:hover {
-            background-color: var(--bg-hover);
-        }
-
-        /* Toast */
-        #toast {
-            visibility: hidden;
-            min-width: 200px;
-            background-color: var(--gray-dark);
-            color: #fff;
-            text-align: center;
-            padding: 12px 16px;
-            border-radius: 6px;
-            position: fixed;
-            left: 50%;
-            bottom: 20px;
-            transform: translateX(-50%);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease, visibility 0.3s;
-            font-size: 14px;
-        }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Lightbox */
-        #lightbox {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--bg-dark);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #lightbox img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 6px;
-        }
-
-        #lightbox .close {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            font-size: 28px;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #f5f5f5;
-            border-top: 1px solid var(--gray-border);
-            padding: 24px 16px;
-            margin-top: 40px;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-        }
-
-        footer a {
-            color: var(--blue-link);
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        hr {
-            margin: 24px 0;
-            border: none;
-            border-top: 1px solid var(--gray-border);
-        }
-
-        /* Responsive */
-        @media (min-width: 768px) {
-            body {
-                margin: 0;
-            }
-
-            main {
-                padding: 0 40px;
-            }
-
-            .header-top {
-                align-items: center;
-            }
-
-            #toast {
-                left: auto;
-                right: 30px;
-                transform: none;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Complete setup, usage, settings, privacy, and troubleshooting guide for Tabby Paste." />
+  <title>Tabby Paste Guide</title>
+  <link rel="icon" href="assets/images/icon128.png" />
+  <link rel="stylesheet" href="assets/site.css?v=2" />
 </head>
-<body>
+<body data-page="manual">
+  <a class="skip-link" href="#main" data-i18n="common.skip">Skip to content</a>
 
-<header>
-    <div class="header-content">
-        <div class="header-top">
-            <div class="logo">
-                <a href="index.html" data-i18n="header.title">Tabby Paste</a>
-            </div>
-            <div class="lang-switcher">
-                <button class="lang-btn active" data-lang="ja">日本語</button>
-                <button class="lang-btn" data-lang="en">English</button>
-            </div>
-        </div>
-        <div class="breadcrumb">
-            <a href="index.html" data-i18n="breadcrumb.home">Home</a>
-            <span>/</span>
-            <span data-i18n="breadcrumb.manual">Manual</span>
-        </div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" data-preserve-language>
+        <img src="assets/images/icon128.png" width="34" height="34" alt="" aria-hidden="true" />
+        <span>Tabby Paste</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary" data-i18n-aria-label="common.primaryNav">
+        <a href="index.html#overview" data-preserve-language data-i18n="common.navOverview">Overview</a>
+        <a href="manual.html" aria-current="page" data-preserve-language data-i18n="common.navGuide">Guide</a>
+        <a href="index.html#install" data-preserve-language data-i18n="common.navInstall">Install</a>
+        <a href="#support" data-i18n="common.navSupport">Support</a>
+      </nav>
+      <div class="language-control">
+        <label for="languageSelect" data-i18n="common.languageLabel">Language</label>
+        <select id="languageSelect" aria-label="Language" data-i18n-aria-label="common.languageLabel">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+          <option value="es">Español</option>
+          <option value="ko">한국어</option>
+          <option value="zh-CN">简体中文</option>
+          <option value="zh-TW">繁體中文</option>
+        </select>
+      </div>
     </div>
-</header>
+  </header>
 
-<main>
-    <h1 data-i18n="manual.title">Tabby Paste User Manual</h1>
-
-    <section class="manual">
-        <h2 data-i18n="manual.demo">Demo</h2>
-        <div class="manual-images">
-            <img src="assets/images/demo.gif" alt="Demo" onclick="openLightbox(this)">
-        </div>
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow" data-i18n="manual.hero.eyebrow">Complete guide</p>
+        <h1 data-i18n="manual.hero.title">Use Tabby Paste with confidence.</h1>
+        <p class="page-hero-copy" data-i18n="manual.hero.description">Learn the one-row workflow, try it on this page, tune each setting, and solve common problems.</p>
+      </div>
     </section>
 
-    <hr />
+    <div class="container guide-layout">
+      <aside class="toc" aria-label="On this page" data-i18n-aria-label="manual.toc.label">
+        <h2 data-i18n="manual.toc.title">On this page</h2>
+        <ol>
+          <li><a href="#quick-start" data-i18n="manual.toc.quick">Quick start</a></li>
+          <li><a href="#practice" data-i18n="manual.toc.practice">Practice</a></li>
+          <li><a href="#run" data-i18n="manual.toc.run">Ways to run</a></li>
+          <li><a href="#fields" data-i18n="manual.toc.fields">Supported fields</a></li>
+          <li><a href="#settings" data-i18n="manual.toc.settings">Settings</a></li>
+          <li><a href="#status" data-i18n="manual.toc.status">Icon status</a></li>
+          <li><a href="#troubleshooting" data-i18n="manual.toc.trouble">Troubleshooting</a></li>
+          <li><a href="#privacy" data-i18n="manual.toc.privacy">Privacy</a></li>
+          <li><a href="#faq" data-i18n="manual.toc.faq">FAQ</a></li>
+        </ol>
+      </aside>
 
-    <section class="manual">
-        <h2 data-i18n="manual.screenshots">Screenshots</h2>
-        <div class="manual-images">
-            <img src="assets/images/1.png" alt="Step 1" onclick="openLightbox(this)">
-            <img src="assets/images/2.png" alt="Step 2" onclick="openLightbox(this)">
-            <img src="assets/images/3.png" alt="Step 3" onclick="openLightbox(this)">
-            <img src="assets/images/4.png" alt="Step 4" onclick="openLightbox(this)">
-            <img src="assets/images/5.png" alt="Step 5" onclick="openLightbox(this)">
-        </div>
-    </section>
+      <div class="guide-content">
+        <section class="content-section" id="quick-start">
+          <p class="section-kicker" data-i18n="manual.quick.kicker">Start here</p>
+          <h2 data-i18n="manual.quick.title">Paste one spreadsheet row into a form.</h2>
+          <p class="content-lead" data-i18n="manual.quick.description">Each tab-separated value maps to the next eligible field, beginning with the field you focus.</p>
 
-    <hr />
+          <ol class="step-grid">
+            <li class="step-card">
+              <h3 data-i18n="manual.quick.copyTitle">Copy one row</h3>
+              <p data-i18n="manual.quick.copyDescription">Copy exactly one row from a spreadsheet or other tab-separated source.</p>
+            </li>
+            <li class="step-card">
+              <h3 data-i18n="manual.quick.focusTitle">Click the starting field</h3>
+              <p data-i18n="manual.quick.focusDescription">Focus the first form field that should receive a value.</p>
+            </li>
+            <li class="step-card">
+              <h3 data-i18n="manual.quick.runTitle">Run the extension</h3>
+              <p data-i18n="manual.quick.runDescription">Press the configured shortcut or use the page's context menu.</p>
+            </li>
+          </ol>
 
-    <h2 data-i18n="manual.sampleData">Sample Data</h2>
-    <div class="table-wrapper">
-        <table>
-            <thead>
+          <div class="media-grid">
+            <button class="media-button" type="button" data-dialog-image="assets/images/quick-copy.webp">
+              <img src="assets/images/quick-copy.webp" width="1280" height="800" loading="lazy" alt="A selected spreadsheet row ready to copy" data-i18n-alt="manual.media.copyAlt" />
+              <span data-dialog-caption data-i18n="manual.media.copyCaption">Copy one row so the cells are separated by tabs.</span>
+            </button>
+            <button class="media-button" type="button" data-dialog-image="assets/images/quick-focus.webp">
+              <img src="assets/images/quick-focus.webp" width="1280" height="800" loading="lazy" alt="The first field focused in a sample form" data-i18n-alt="manual.media.focusAlt" />
+              <span data-dialog-caption data-i18n="manual.media.focusCaption">Focus the exact field where filling should begin.</span>
+            </button>
+            <button class="media-button" type="button" data-dialog-image="assets/images/quick-run.webp">
+              <img src="assets/images/quick-run.webp" width="1280" height="800" loading="lazy" alt="Tabby Paste in a browser context menu" data-i18n-alt="manual.media.runAlt" />
+              <span data-dialog-caption data-i18n="manual.media.runCaption">Run Tabby Paste with the shortcut or context menu.</span>
+            </button>
+          </div>
+
+          <div class="callout">
+            <strong data-i18n="manual.quick.noteTitle">One row at a time.</strong>
+            <span data-i18n="manual.quick.noteDescription"> Multi-row ranges are not split into separate records. Copy and paste each row separately.</span>
+          </div>
+        </section>
+
+        <section class="content-section" id="practice">
+          <p class="section-kicker" data-i18n="manual.practice.kicker">Try it here</p>
+          <h2 data-i18n="manual.practice.title">Practice with synthetic data.</h2>
+          <p class="content-lead" data-i18n="manual.practice.description">Copy a sample row, focus Employee ID, then run Tabby Paste. No real information is used.</p>
+
+          <figure class="media-frame">
+            <video controls preload="metadata" poster="assets/images/demo-poster.webp">
+              <source src="assets/images/demo.webm" type="video/webm" />
+            </video>
+            <figcaption class="media-caption" data-i18n="manual.practice.videoCaption">The full workflow: copy, focus, run, and review the filled fields.</figcaption>
+          </figure>
+
+          <div class="practice-shell">
+            <section class="practice-panel" aria-labelledby="sampleDataHeading">
+              <h3 id="sampleDataHeading" data-i18n="manual.practice.dataTitle">Sample rows</h3>
+              <div class="table-scroll">
+                <table class="sample-table">
+                  <thead>
+                    <tr>
+                      <th scope="col" data-i18n="manual.practice.employeeId">Employee ID</th>
+                      <th scope="col" data-i18n="manual.practice.employeeName">Employee name</th>
+                      <th scope="col" data-i18n="manual.practice.department">Department</th>
+                      <th scope="col" data-i18n="manual.practice.status">Status</th>
+                      <th scope="col" aria-label="Action" data-i18n-aria-label="manual.practice.action"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-copy-value="E001">E001</td>
+                      <td data-copy-value="Alex Morgan">Alex Morgan</td>
+                      <td data-copy-value="Sales">Sales</td>
+                      <td data-copy-value="Active" data-i18n="manual.practice.active">Active</td>
+                      <td class="copy-cell"><button class="copy-row-button" type="button" data-i18n="manual.practice.copyRow">Copy row</button></td>
+                    </tr>
+                    <tr>
+                      <td data-copy-value="E002">E002</td>
+                      <td data-copy-value="Jamie Lee">Jamie Lee</td>
+                      <td data-copy-value="Engineering">Engineering</td>
+                      <td data-copy-value="Inactive" data-i18n="manual.practice.inactive">Inactive</td>
+                      <td class="copy-cell"><button class="copy-row-button" type="button" data-i18n="manual.practice.copyRow">Copy row</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p id="copyStatus" class="copy-status" role="status" aria-live="polite"></p>
+            </section>
+
+            <section class="practice-panel" aria-labelledby="sampleFormHeading">
+              <h3 id="sampleFormHeading" data-i18n="manual.practice.formTitle">Sample form</h3>
+              <form id="demoForm" class="demo-form">
+                <div class="form-field">
+                  <label for="employeeId" data-i18n="manual.practice.employeeId">Employee ID</label>
+                  <input id="employeeId" type="text" autocomplete="off" />
+                </div>
+                <div class="form-field">
+                  <label for="employeeName" data-i18n="manual.practice.employeeName">Employee name</label>
+                  <input id="employeeName" type="text" autocomplete="off" />
+                </div>
+                <div class="form-field">
+                  <label for="department" data-i18n="manual.practice.department">Department</label>
+                  <input id="department" type="text" autocomplete="off" />
+                </div>
+                <div class="form-field">
+                  <label for="employmentStatus" data-i18n="manual.practice.status">Status</label>
+                  <select id="employmentStatus">
+                    <option value="" data-i18n="manual.practice.select">Select a status</option>
+                    <option value="Active" data-i18n="manual.practice.active">Active</option>
+                    <option value="Inactive" data-i18n="manual.practice.inactive">Inactive</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button id="clearDemoForm" class="button button-secondary button-small" type="button" data-i18n="manual.practice.clear">Clear form</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="content-section" id="run">
+          <p class="section-kicker" data-i18n="manual.run.kicker">Choose your trigger</p>
+          <h2 data-i18n="manual.run.title">Run it from the keyboard or context menu.</h2>
+          <div class="settings-grid">
+            <article class="settings-card">
+              <h3 data-i18n="manual.run.shortcutTitle">Keyboard shortcut</h3>
+              <p data-i18n="manual.run.shortcutDescription">The suggested shortcut is Ctrl+Shift+V. Open Settings to see the current shortcut or change it in the browser's shortcut page.</p>
+            </article>
+            <article class="settings-card">
+              <h3 data-i18n="manual.run.contextTitle">Context menu</h3>
+              <p data-i18n="manual.run.contextDescription">Right-click the page after focusing the starting field, then choose Tabby Paste.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="content-section" id="fields">
+          <p class="section-kicker" data-i18n="manual.fields.kicker">Field behavior</p>
+          <h2 data-i18n="manual.fields.title">Supported fields and matching rules.</h2>
+          <p class="content-lead" data-i18n="manual.fields.description">Tabby Paste scans the current page for visible, enabled, editable fields in document order.</p>
+          <ul>
+            <li data-i18n="manual.fields.text">Text and password inputs are filled character by character and emit input and change events.</li>
+            <li data-i18n="manual.fields.textarea">Textareas are supported and existing values are replaced.</li>
+            <li data-i18n="manual.fields.select">Selects match normalized option values first, then visible labels, using exact, prefix, and unambiguous partial matches.</li>
+            <li data-i18n="manual.fields.stop">Processing stops when either the copied values or eligible destination fields run out.</li>
+          </ul>
+          <div class="callout">
+            <strong data-i18n="manual.fields.limitTitle">Not supported:</strong>
+            <span data-i18n="manual.fields.limitDescription"> other input types, contenteditable regions, fields inside iframes or shadow roots, hidden or disabled fields, and browser-internal pages.</span>
+          </div>
+        </section>
+
+        <section class="content-section" id="settings">
+          <p class="section-kicker" data-i18n="manual.settings.kicker">Make it yours</p>
+          <h2 data-i18n="manual.settings.title">Settings reference.</h2>
+          <p class="content-lead" data-i18n="manual.settings.description">Open the toolbar popup, then choose Settings. Changes are saved automatically.</p>
+          <div class="settings-grid">
+            <article class="settings-card">
+              <h3 data-i18n="manual.settings.popupTitle">Extension on/off</h3>
+              <p data-i18n="manual.settings.popupDescription">The popup pauses or resumes Tabby Paste globally. It remains available even when the current URL is excluded.</p>
+            </article>
+            <article class="settings-card">
+              <h3 data-i18n="manual.settings.urlsTitle">Enabled URLs</h3>
+              <p data-i18n="manual.settings.urlsDescription">Enter one HTTP or HTTPS wildcard pattern per line. Leave the list empty to allow every website.</p>
+              <code class="code-example">https://*.example.com/*</code>
+            </article>
+            <article class="settings-card">
+              <h3 data-i18n="manual.settings.delayTitle">Delay after each operation</h3>
+              <p data-i18n="manual.settings.delayDescription">Choose 0–5000 ms when a form needs extra time to validate, render, or move focus.</p>
+            </article>
+            <article class="settings-card">
+              <h3 data-i18n="manual.settings.dynamicTitle">Wait for dynamic options</h3>
+              <p data-i18n="manual.settings.dynamicDescription">Keep this enabled when select options load after another field changes.</p>
+            </article>
+            <article class="settings-card">
+              <h3 data-i18n="manual.settings.backupTitle">Import and export</h3>
+              <p data-i18n="manual.settings.backupDescription">TOML backup includes enabled URLs, delay, and dynamic-option waiting. The temporary global on/off state is not exported.</p>
+            </article>
+            <article class="settings-card">
+              <h3 data-i18n="manual.settings.browserTitle">Browser-managed settings</h3>
+              <p data-i18n="manual.settings.browserDescription">Use the provided links to change the keyboard shortcut or open the browser's extension management page.</p>
+            </article>
+          </div>
+
+          <div class="media-grid">
+            <button class="media-button" type="button" data-dialog-image="assets/images/popup.webp">
+              <img src="assets/images/popup.webp" width="800" height="800" loading="lazy" alt="Tabby Paste toolbar popup" data-i18n-alt="manual.media.popupAlt" />
+              <span data-dialog-caption data-i18n="manual.media.popupCaption">The popup shows whether Tabby Paste is available on the current page.</span>
+            </button>
+            <button class="media-button" type="button" data-dialog-image="assets/images/options.webp">
+              <img src="assets/images/options.webp" width="1280" height="960" loading="lazy" alt="Tabby Paste settings page" data-i18n-alt="manual.media.optionsAlt" />
+              <span data-dialog-caption data-i18n="manual.media.optionsCaption">Settings are saved automatically and can be backed up as TOML.</span>
+            </button>
+            <button class="media-button" type="button" data-dialog-image="assets/images/welcome.webp">
+              <img src="assets/images/welcome.webp" width="1280" height="800" loading="lazy" alt="Tabby Paste first-install welcome page" data-i18n-alt="manual.media.welcomeAlt" />
+              <span data-dialog-caption data-i18n="manual.media.welcomeCaption">The welcome page appears only after a fresh installation.</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="content-section" id="status">
+          <p class="section-kicker" data-i18n="manual.status.kicker">At a glance</p>
+          <h2 data-i18n="manual.status.title">Read the toolbar icon and badge.</h2>
+          <div class="status-grid">
+            <article class="status-card">
+              <div class="status-icon"><img src="assets/images/icon128.png" alt="" aria-hidden="true" /></div>
+              <h3 data-i18n="manual.status.readyTitle">Ready</h3>
+              <p data-i18n="manual.status.readyDescription">The current HTTP or HTTPS page is allowed and the extension is on.</p>
+            </article>
+            <article class="status-card">
+              <div class="status-icon status-icon-muted"><img src="assets/images/icon128.png" alt="" aria-hidden="true" /><span class="sr-only">×</span></div>
+              <h3 data-i18n="manual.status.urlTitle">Badge ×</h3>
+              <p data-i18n="manual.status.urlDescription">The current page does not match the enabled URL list or is not a normal web page.</p>
+            </article>
+            <article class="status-card">
+              <div class="status-icon status-icon-muted"><span class="status-badge">OFF</span></div>
+              <h3 data-i18n="manual.status.offTitle">Badge OFF</h3>
+              <p data-i18n="manual.status.offDescription">The extension has been paused globally from the popup.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="content-section" id="troubleshooting">
+          <p class="section-kicker" data-i18n="manual.trouble.kicker">When it does not run</p>
+          <h2 data-i18n="manual.trouble.title">Troubleshooting common messages.</h2>
+          <div class="trouble-grid">
+            <article class="trouble-card">
+              <h3 data-i18n="manual.trouble.clipboardTitle">Clipboard could not be read</h3>
+              <p data-i18n="manual.trouble.clipboardDescription">Copy the row again, keep the page active, and rerun Tabby Paste from a user action.</p>
+            </article>
+            <article class="trouble-card">
+              <h3 data-i18n="manual.trouble.emptyTitle">No text in the clipboard</h3>
+              <p data-i18n="manual.trouble.emptyDescription">Copy a single row before running the extension.</p>
+            </article>
+            <article class="trouble-card">
+              <h3 data-i18n="manual.trouble.fieldsTitle">No input fields found</h3>
+              <p data-i18n="manual.trouble.fieldsDescription">Confirm the page uses a supported visible field and that it is not inside an iframe or shadow root.</p>
+            </article>
+            <article class="trouble-card">
+              <h3 data-i18n="manual.trouble.focusTitle">Focus an input field first</h3>
+              <p data-i18n="manual.trouble.focusDescription">Click the exact first supported field, then run the command again.</p>
+            </article>
+            <article class="trouble-card">
+              <h3 data-i18n="manual.trouble.urlTitle">The popup says this URL is disabled</h3>
+              <p data-i18n="manual.trouble.urlDescription">Update the enabled URL patterns or test on a normal HTTP/HTTPS page.</p>
+            </article>
+            <article class="trouble-card">
+              <h3 data-i18n="manual.trouble.selectTitle">A select was not changed</h3>
+              <p data-i18n="manual.trouble.selectDescription">Check that the copied value matches an option value or label, and enable dynamic-option waiting if options load late.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="content-section" id="privacy">
+          <p class="section-kicker" data-i18n="manual.privacy.kicker">Transparent permissions</p>
+          <h2 data-i18n="manual.privacy.title">What Tabby Paste accesses and why.</h2>
+          <p class="content-lead" data-i18n="manual.privacy.description">The extension does not collect data or communicate with a developer-controlled server. The destination website can still react to values entered into its form.</p>
+          <div class="table-scroll">
+            <table class="permission-table">
+              <thead>
                 <tr>
-                    <th data-i18n="manual.employeeId">Employee ID</th>
-                    <th data-i18n="manual.employeeName">Employee Name</th>
-                    <th data-i18n="manual.departmentName">Department Name</th>
-                    <th data-i18n="manual.status">Status</th>
+                  <th scope="col" data-i18n="manual.privacy.permission">Permission</th>
+                  <th scope="col" data-i18n="manual.privacy.purpose">Purpose</th>
                 </tr>
-            </thead>
-            <tbody>
-                <tr onclick="copyRow(this)">
-                    <td>E001</td><td>John Smith</td><td>Sales</td><td data-i18n="manual.active">Active</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E002</td><td>Emily Johnson</td><td>Human Resources</td><td data-i18n="manual.active">Active</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E003</td><td>Michael Brown</td><td>Engineering</td><td data-i18n="manual.active">Active</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E004</td><td>Sarah Davis</td><td>Marketing</td><td data-i18n="manual.inactive">Inactive</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E005</td><td>David Wilson</td><td>Finance</td><td data-i18n="manual.active">Active</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E006</td><td>Laura Martinez</td><td>Customer Support</td><td data-i18n="manual.active">Active</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E007</td><td>Robert Anderson</td><td>Engineering</td><td data-i18n="manual.inactive">Inactive</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E008</td><td>Jessica Taylor</td><td>Legal</td><td data-i18n="manual.active">Active</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E009</td><td>Daniel Thomas</td><td>Operations</td><td data-i18n="manual.active">Active</td>
-                </tr>
-                <tr onclick="copyRow(this)">
-                    <td>E010</td><td>Amanda Moore</td><td>Research Development</td><td data-i18n="manual.inactive">Inactive</td>
-                </tr>
-            </tbody>
-        </table>
+              </thead>
+              <tbody>
+                <tr><td><code>activeTab</code>, <code>scripting</code></td><td data-i18n="manual.privacy.activeTab">Run the paste helper only in the active tab after you invoke it.</td></tr>
+                <tr><td><code>clipboardRead</code></td><td data-i18n="manual.privacy.clipboard">Read the copied row when Tabby Paste runs.</td></tr>
+                <tr><td><code>contextMenus</code></td><td data-i18n="manual.privacy.context">Provide the page context-menu command.</td></tr>
+                <tr><td><code>storage</code></td><td data-i18n="manual.privacy.storage">Save and browser-sync your preferences.</td></tr>
+                <tr><td><code>tabs</code></td><td data-i18n="manual.privacy.tabs">Check the current URL, update the icon and badge, and open extension pages.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="content-section" id="faq">
+          <p class="section-kicker">FAQ</p>
+          <h2 data-i18n="manual.faq.title">Frequently asked questions.</h2>
+          <div class="faq-list">
+            <details>
+              <summary data-i18n="manual.faq.multiQuestion">Can I paste multiple spreadsheet rows at once?</summary>
+              <p data-i18n="manual.faq.multiAnswer">No. Tabby Paste maps tab-separated values from one row to one sequence of fields. Process each row separately.</p>
+            </details>
+            <details>
+              <summary data-i18n="manual.faq.shortcutQuestion">Can I change the shortcut?</summary>
+              <p data-i18n="manual.faq.shortcutAnswer">Yes. Open Settings, use the keyboard-shortcut link, and assign a combination supported by your browser.</p>
+            </details>
+            <details>
+              <summary data-i18n="manual.faq.syncQuestion">Which settings are synchronized?</summary>
+              <p data-i18n="manual.faq.syncAnswer">The browser syncs enabled URLs, delay, dynamic-option waiting, and global enabled state when sync is available.</p>
+            </details>
+            <details>
+              <summary data-i18n="manual.faq.dataQuestion">Does Tabby Paste send my form data anywhere?</summary>
+              <p data-i18n="manual.faq.dataAnswer">No. The extension itself uses the clipboard and page locally and has no developer server or analytics.</p>
+            </details>
+          </div>
+        </section>
+
+        <section class="content-section" id="support">
+          <p class="section-kicker" data-i18n="manual.support.kicker">Still need help?</p>
+          <h2 data-i18n="manual.support.title">Report a reproducible problem.</h2>
+          <p class="content-lead" data-i18n="manual.support.description">Include the browser, page type, copied value shape, destination field types, and any Tabby Paste message. Do not include sensitive clipboard data.</p>
+          <div class="section-actions">
+            <a class="button button-primary" href="https://github.com/apricotpersonallabo/tabbypaste/issues" target="_blank" rel="noopener noreferrer" data-i18n="manual.support.issueAction">Open GitHub Issues</a>
+            <a class="button button-secondary" href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener noreferrer" data-i18n="common.source">Source</a>
+          </div>
+        </section>
+      </div>
     </div>
+  </main>
 
-    <hr />
-
-    <div class="form-container">
-        <h2 data-i18n="manual.sampleForm">Sample Form</h2>
-        <p><b data-i18n="manual.formDescription">Tabby Paste! Paste sample data here!</b></p>
-        <form>
-            <div class="form-group">
-                <label data-i18n="manual.employeeId">Employee ID</label>
-                <input type="text">
-            </div>
-            <div class="form-group">
-                <label data-i18n="manual.employeeName">Employee Name</label>
-                <input type="text">
-            </div>
-            <div class="form-group">
-                <label data-i18n="manual.departmentName">Department Name</label>
-                <input type="text">
-            </div>
-            <div class="form-group">
-                <label data-i18n="manual.status">Status</label>
-                <select>
-                    <option value="" selected data-i18n="manual.select">-- Select --</option>
-                    <option data-i18n="manual.active">Active</option>
-                    <option data-i18n="manual.inactive">Inactive</option>
-                </select>
-            </div>
-        </form>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand" href="index.html" data-preserve-language>
+          <img src="assets/images/icon128.png" width="34" height="34" alt="" aria-hidden="true" />
+          <span>Tabby Paste</span>
+        </a>
+        <p class="footer-copy"><span data-i18n="common.footerTagline">One spreadsheet row, every field.</span> · © 2024–<span data-current-year></span></p>
+      </div>
+      <nav class="footer-links" aria-label="Footer" data-i18n-aria-label="common.footerNav">
+        <a href="index.html" data-preserve-language data-i18n="common.navOverview">Overview</a>
+        <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener noreferrer" data-i18n="common.source">Source</a>
+        <a href="https://github.com/apricotpersonallabo/tabbypaste/issues" target="_blank" rel="noopener noreferrer" data-i18n="common.issues">Issues</a>
+        <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer" data-i18n="common.license">License</a>
+      </nav>
     </div>
-</main>
+  </footer>
 
-<footer>
-    <p>&copy; 2024-2025 <a href="https://github.com/apricotpersonallabo/tabbypaste" target="_blank" rel="noopener">Tabby Paste</a>. All rights reserved.</p>
-</footer>
+  <dialog id="mediaDialog" aria-labelledby="dialogCaption">
+    <div class="dialog-toolbar">
+      <button id="dialogClose" class="dialog-close" type="button" aria-label="Close image" data-i18n-aria-label="common.closeImage">×</button>
+    </div>
+    <figure class="dialog-figure">
+      <img id="dialogImage" src="assets/images/quick-copy.webp" alt="" />
+      <figcaption id="dialogCaption"></figcaption>
+    </figure>
+  </dialog>
 
-<div id="toast" data-i18n="manual.copied">Copied to clipboard</div>
-
-<div id="lightbox" onclick="closeLightbox()">
-    <span class="close">&times;</span>
-    <img id="lightbox-img" src="" alt="">
-</div>
-
-<script>
-// i18n translations
-const translations = {
-    ja: {
-        'header.title': 'Tabby Paste',
-        'breadcrumb.home': 'ホーム',
-        'breadcrumb.manual': 'マニュアル',
-        'manual.title': 'Tabby Paste ユーザーマニュアル',
-        'manual.screenshots': 'スクリーンショット',
-        'manual.demo': 'デモ',
-        'manual.sampleForm': 'サンプルフォーム',
-        'manual.formDescription': 'Tabby Paste! サンプルデータをここに貼り付けてください！',
-        'manual.employeeId': '従業員ID',
-        'manual.employeeName': '従業員名',
-        'manual.departmentName': '部門名',
-        'manual.status': 'ステータス',
-        'manual.select': '-- 選択 --',
-        'manual.active': 'アクティブ',
-        'manual.inactive': '非アクティブ',
-        'manual.sampleData': 'サンプルデータ',
-        'manual.copied': 'クリップボードにコピーしました'
-    },
-    en: {
-        'header.title': 'Tabby Paste',
-        'breadcrumb.home': 'Home',
-        'breadcrumb.manual': 'Manual',
-        'manual.title': 'Tabby Paste User Manual',
-        'manual.screenshots': 'Screenshots',
-        'manual.demo': 'Demo',
-        'manual.sampleForm': 'Sample Form',
-        'manual.formDescription': 'Tabby Paste! Paste sample data here!',
-        'manual.employeeId': 'Employee ID',
-        'manual.employeeName': 'Employee Name',
-        'manual.departmentName': 'Department Name',
-        'manual.status': 'Status',
-        'manual.select': '-- Select --',
-        'manual.active': 'Active',
-        'manual.inactive': 'Inactive',
-        'manual.sampleData': 'Sample Data',
-        'manual.copied': 'Copied to clipboard'
-    }
-};
-
-// Get current language from localStorage or default
-let currentLang = localStorage.getItem('lang') || 'ja';
-
-// Initialize language
-function initializeLanguage() {
-    // Set HTML lang attribute
-    document.documentElement.lang = currentLang;
-    
-    // Update active button
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.lang === currentLang) {
-            btn.classList.add('active');
-        }
-    });
-    
-    updateTranslations();
-}
-
-// Update all translations on page
-function updateTranslations() {
-    document.querySelectorAll('[data-i18n]').forEach(elem => {
-        const key = elem.dataset.i18n;
-        const translation = translations[currentLang][key];
-        if (translation) {
-            elem.textContent = translation;
-        }
-    });
-}
-
-// Language switcher
-document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        currentLang = e.target.dataset.lang;
-        localStorage.setItem('lang', currentLang);
-        initializeLanguage();
-    });
-});
-
-// Copy row to clipboard
-let toastTimer;
-
-function copyRow(row) {
-    const tsv = Array.from(row.querySelectorAll("td"))
-        .map(td => td.innerText)
-        .join("\t");
-
-    navigator.clipboard.writeText(tsv).then(showToast);
-}
-
-function showToast() {
-    const toast = document.getElementById("toast");
-    toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 1500);
-}
-
-function openLightbox(img) {
-    document.getElementById("lightbox-img").src = img.src;
-    document.getElementById("lightbox").style.display = "flex";
-}
-
-function closeLightbox() {
-    document.getElementById("lightbox").style.display = "none";
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', initializeLanguage);
-</script>
-
+  <script src="assets/translations.js"></script>
+  <script src="assets/site.js"></script>
+  <script src="assets/manual.js"></script>
 </body>
 </html>

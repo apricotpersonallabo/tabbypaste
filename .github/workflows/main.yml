@@ -90,7 +90,7 @@ jobs:
       - name: Check JavaScript and run unit tests
         shell: bash
         run: |
-          for source_file in scripts/*.mjs src/*.js; do
+          for source_file in scripts/*.mjs src/*.js docs/assets/*.js; do
             node --check "$source_file"
           done
           node --test scripts/*.test.mjs
