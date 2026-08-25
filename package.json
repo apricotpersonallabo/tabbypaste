@@ -2,6 +2,11 @@
   "name": "tabbypaste",
   "private": true,
   "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "build:extensions": "node scripts/sync-manifest-version.mjs",
+    "version:check": "node scripts/sync-manifest-version.mjs --check",
+    "version:increment": "node scripts/sync-manifest-version.mjs --increment"
+  },
   "devDependencies": {
     "web-ext": "10.6.0"
   }

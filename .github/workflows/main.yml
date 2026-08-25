@@ -52,11 +52,11 @@ jobs:
           corepack enable pnpm
           pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Validate version files
+      - name: Validate version source and manifest templates
         id: version
         shell: bash
         run: |
-          node scripts/sync-manifest-version.mjs --check
+          pnpm run version:check
           VERSION=$(jq -r '.version' version.json)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
@@ -105,10 +105,7 @@ jobs:
           CHROMIUM_ZIP="${REPO_NAME}-${TAG}-chromium.zip"
           FIREFOX_ZIP="${REPO_NAME}-${TAG}-firefox.zip"
 
-          mkdir -p build/chromium build/firefox
-          rsync -a --exclude 'manifest.firefox.json' src/ build/chromium/
-          rsync -a --exclude 'manifest.json' --exclude 'manifest.firefox.json' src/ build/firefox/
-          cp src/manifest.firefox.json build/firefox/manifest.json
+          pnpm run build:extensions
 
           pnpm exec web-ext lint --source-dir build/firefox --boring
 

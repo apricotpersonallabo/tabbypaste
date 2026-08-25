@@ -22,19 +22,27 @@ The Firefox package uses `manifest.firefox.json` as its source manifest. Release
 
 ## Version management
 
-`version.json` is the single source of truth for the extension version. Increment it and synchronize both browser manifests with:
+`version.json` is the single source of truth for the extension version. The source manifests are templates whose version remains `0.0.0.1`. Increment only `version.json` with:
 
 ```sh
-node scripts/sync-manifest-version.mjs --increment
+pnpm run version:increment
 ```
 
-Commit `version.json`, `src/manifest.json`, and `src/manifest.firefox.json` together. To check their consistency without modifying them, run:
+Commit `version.json`. To validate it and confirm that both source manifests still use the template version, run:
 
 ```sh
-node scripts/sync-manifest-version.mjs --check
+pnpm run version:check
 ```
 
-Pushes and pull requests validate and package the extension but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
+Generate local development builds with the real version from `version.json` by running:
+
+```sh
+pnpm run build:extensions
+```
+
+Load `build/chromium` as the unpacked Chrome or Edge extension. For Firefox, load `build/firefox/manifest.json`. Do not load `src/` directly when verifying the extension version.
+
+Pushes and pull requests validate the source templates and package generated builds but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
 
 ## Automated store submissions
 

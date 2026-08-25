@@ -1,3 +1,5 @@
+export const MANIFEST_TEMPLATE_VERSION = '0.0.0.1';
+
 export const validateVersion = (version) => {
   if (typeof version !== 'string' || !/^(0|[1-9]\d*)(\.(0|[1-9]\d*)){0,3}$/.test(version)) {
     throw new Error(`Invalid browser extension version: ${version}`);
@@ -9,6 +11,22 @@ export const validateVersion = (version) => {
   }
 
   return parts;
+};
+
+export const assertManifestTemplates = (manifests) => {
+  for (const { label, version } of manifests) {
+    validateVersion(version);
+    if (version !== MANIFEST_TEMPLATE_VERSION) {
+      throw new Error(
+        `${label} version ${version} must remain the template value ${MANIFEST_TEMPLATE_VERSION}.`
+      );
+    }
+  }
+};
+
+export const materializeManifestVersion = (manifest, version) => {
+  validateVersion(version);
+  return { ...manifest, version };
 };
 
 export const incrementVersion = (version) => {
