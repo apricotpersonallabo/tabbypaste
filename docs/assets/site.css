@@ -598,6 +598,7 @@ button.button {
 
 .media-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   margin-top: 28px;
 }
 
@@ -615,9 +616,7 @@ button.button {
 
 .media-button img {
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  object-position: top center;
+  height: auto;
 }
 
 .media-button span {
@@ -629,7 +628,7 @@ button.button {
 
 .practice-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   margin-top: 28px;
 }

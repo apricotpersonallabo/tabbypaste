@@ -20,6 +20,7 @@ const pages = Object.fromEntries(await Promise.all(pageNames.map(async name => [
 ])));
 
 const translationSource = await readFile(path.join(docsRoot, 'assets', 'translations.js'), 'utf8');
+const siteCss = await readFile(path.join(docsRoot, 'assets', 'site.css'), 'utf8');
 const translationContext = { window: {} };
 vm.runInNewContext(translationSource, translationContext, { filename: 'translations.js' });
 const translations = translationContext.window.TABBY_PASTE_TRANSLATIONS;
@@ -108,4 +109,55 @@ test('pages avoid inline behavior and obsolete media', () => {
     assert.doesNotMatch(source, /<script(?!\s[^>]*\bsrc=)[^>]*>/i, `${pageName} contains inline JavaScript`);
     assert.doesNotMatch(source, /assets\/images\/(?:[1-5]\.png|demo\.gif)/, `${pageName} uses obsolete media`);
   }
+});
+
+test('manual thumbnails preserve source ratios and practice content is stacked', () => {
+  const manual = pages['manual.html'];
+  const thumbnailDimensions = Object.fromEntries(
+    collectMatches(manual, /<button class="media-button"[\s\S]*?<img\s+([^>]+)>/g)
+      .map(attributes => {
+        const source = attributes.match(/src="([^"]+)"/)?.[1];
+        const width = Number(attributes.match(/width="(\d+)"/)?.[1]);
+        const height = Number(attributes.match(/height="(\d+)"/)?.[1]);
+        return [source, [width, height]];
+      })
+  );
+
+  assert.deepEqual(thumbnailDimensions['assets/images/popup.webp'], [240, 160]);
+  assert.deepEqual(thumbnailDimensions['assets/images/options.webp'], [700, 900]);
+  for (const source of [
+    'assets/images/quick-copy.webp',
+    'assets/images/quick-focus.webp',
+    'assets/images/quick-run.webp',
+    'assets/images/welcome.webp'
+  ]) {
+    assert.deepEqual(thumbnailDimensions[source], [1280, 800], `${source} has incorrect dimensions`);
+  }
+
+  const mediaImageRule = siteCss.match(/\.media-button img\s*{([^}]+)}/)?.[1] || '';
+  assert.match(mediaImageRule, /width:\s*100%/);
+  assert.match(mediaImageRule, /height:\s*auto/);
+  assert.doesNotMatch(mediaImageRule, /aspect-ratio|object-fit|object-position/);
+
+  const practiceRule = siteCss.match(/\.practice-shell\s*{([^}]+)}/)?.[1] || '';
+  assert.match(practiceRule, /grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+});
+
+test('sample table keeps copy controls in the first column without changing TSV order', () => {
+  const manual = pages['manual.html'];
+  const table = manual.match(/<table class="sample-table">([\s\S]*?)<\/table>/)?.[1] || '';
+  const headerRow = table.match(/<thead>[\s\S]*?<tr>([\s\S]*?)<\/tr>/)?.[1]?.trim() || '';
+  assert.match(headerRow, /^<th[^>]+data-i18n-aria-label="manual\.practice\.action"/);
+
+  const body = table.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] || '';
+  const rows = collectMatches(body, /<tr>([\s\S]*?)<\/tr>/g).map(row => row.trim());
+  assert.equal(rows.length, 2);
+  assert.ok(rows.every(row => /^<td class="copy-cell"><button class="copy-row-button"/.test(row)));
+  assert.deepEqual(
+    rows.map(row => collectMatches(row, /data-copy-value="([^"]+)"/g)),
+    [
+      ['E001', 'Alex Morgan', 'Sales', 'Active'],
+      ['E002', 'Jamie Lee', 'Engineering', 'Inactive']
+    ]
+  );
 });
