@@ -153,6 +153,15 @@
     "optionsShortcutNotSet": {
         "message": "未設定"
     },
+    "optionsFirefoxShortcutHint": {
+        "message": "FirefoxではCtrl+Shift+Vが「書式なしで貼り付け」に予約されているため、既定のショートカットは割り当てられません。上のボタンからショートカットを設定してください。"
+    },
+    "optionsShortcutSettingsOpenFailed": {
+        "message": "ショートカット設定を開けませんでした。もう一度お試しください。"
+    },
+    "optionsFirefoxExtensionSettingsHint": {
+        "message": "FirefoxでTabby Pasteを管理するには、Firefoxメニューを開いて「アドオンとテーマ」を選択してください。"
+    },
     "optionsShortcutUnavailable": {
         "message": "取得できません"
     },

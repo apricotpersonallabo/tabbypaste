@@ -82,6 +82,15 @@
     "optionsResetDone": {
         "message": "기본값으로 초기화했습니다."
     },
+    "optionsFirefoxShortcutHint": {
+        "message": "Firefox에서는 Ctrl+Shift+V가 서식 없는 텍스트 붙여넣기에 예약되어 있어 기본 단축키를 지정하지 않습니다. 위 버튼에서 단축키를 지정하세요."
+    },
+    "optionsShortcutSettingsOpenFailed": {
+        "message": "키보드 단축키 설정을 열 수 없습니다. 다시 시도하세요."
+    },
+    "optionsFirefoxExtensionSettingsHint": {
+        "message": "Firefox에서 Tabby Paste를 관리하려면 Firefox 메뉴를 열고 부가 기능 및 테마를 선택하세요."
+    },
     "welcomePageTitle": {
         "message": "Tabby Paste에 오신 것을 환영합니다"
     },

@@ -171,13 +171,41 @@ button.secondary {
   margin-top: 0;
 }
 
+.shortcut-settings-link .link-button {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #245dcc;
+  background: transparent;
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.firefox-shortcut-hint {
+  max-width: 68ch;
+  margin: var(--space-xs) 0 var(--space-sm);
+  color: #52606d;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.firefox-extension-settings-hint {
+  max-width: 68ch;
+  margin: 0;
+  color: #52606d;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 .settings-links {
   display: grid;
   gap: var(--space-xs);
 }
 
 .manual-link a,
-.shortcut-settings-link a,
 .settings-links a {
   color: #245dcc;
   text-decoration-thickness: 1px;

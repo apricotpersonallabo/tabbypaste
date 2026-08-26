@@ -82,6 +82,15 @@
     "optionsResetDone": {
         "message": "Auf Standardwerte zurückgesetzt."
     },
+    "optionsFirefoxShortcutHint": {
+        "message": "Firefox weist kein Standard-Tastenkürzel zu, da Strg+Umschalt+V für „Als unformatierten Text einfügen“ reserviert ist. Weisen Sie über die obige Schaltfläche ein Tastenkürzel zu."
+    },
+    "optionsShortcutSettingsOpenFailed": {
+        "message": "Die Einstellungen für Tastenkürzel konnten nicht geöffnet werden. Bitte versuchen Sie es erneut."
+    },
+    "optionsFirefoxExtensionSettingsHint": {
+        "message": "Um Tabby Paste in Firefox zu verwalten, öffnen Sie das Firefox-Menü und wählen Sie „Add-ons und Themes“."
+    },
     "welcomePageTitle": {
         "message": "Willkommen bei Tabby Paste"
     },

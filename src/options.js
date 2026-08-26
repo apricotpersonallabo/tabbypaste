@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS = {
 
 const form = document.getElementById('optionsForm');
 const statusEl = document.getElementById('status');
+const isFirefox = navigator.userAgent.includes('Firefox/');
 
 const message = (key) => chrome.i18n.getMessage(key) || key;
 
@@ -27,26 +28,35 @@ const localize = () => {
   document.title = pageHeading;
 };
 
-const setupBrowserSettingsLinks = () => {
-  const isFirefox = navigator.userAgent.includes('Firefox/');
-  const extensionSettingsUrl = isFirefox
-    ? 'about:addons'
-    : `chrome://extensions/?id=${chrome.runtime.id}`;
-  const shortcutSettingsUrl = isFirefox
-    ? 'about:addons'
-    : 'chrome://extensions/shortcuts';
+const setupBrowserSettingsControls = () => {
+  const shortcutSettingsButton = document.getElementById('shortcutSettingsButton');
+  shortcutSettingsButton.addEventListener('click', async () => {
+    try {
+      if (isFirefox) {
+        await chrome.commands.openShortcutSettings();
+      } else {
+        await chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+      }
+    } catch (error) {
+      console.error('Failed to open keyboard shortcut settings:', error);
+      setStatus(message('optionsShortcutSettingsOpenFailed'));
+    }
+  });
 
-  const bindLink = (id, url) => {
-    const link = document.getElementById(id);
-    link.href = url;
-    link.addEventListener('click', async (event) => {
+  const extensionSettingsLink = document.getElementById('extensionSettingsLink');
+  const firefoxExtensionSettingsHint = document.getElementById('firefoxExtensionSettingsHint');
+  extensionSettingsLink.hidden = isFirefox;
+  document.getElementById('firefoxShortcutHint').hidden = !isFirefox;
+  firefoxExtensionSettingsHint.hidden = !isFirefox;
+
+  if (!isFirefox) {
+    const extensionSettingsUrl = `chrome://extensions/?id=${chrome.runtime.id}`;
+    extensionSettingsLink.href = extensionSettingsUrl;
+    extensionSettingsLink.addEventListener('click', async (event) => {
       event.preventDefault();
-      await chrome.tabs.create({ url });
+      await chrome.tabs.create({ url: extensionSettingsUrl });
     });
-  };
-
-  bindLink('extensionSettingsLink', extensionSettingsUrl);
-  bindLink('shortcutSettingsLink', shortcutSettingsUrl);
+  }
 };
 
 const loadCurrentShortcut = async () => {
@@ -240,6 +250,6 @@ document.addEventListener('visibilitychange', () => {
 });
 
 localize();
-setupBrowserSettingsLinks();
+setupBrowserSettingsControls();
 loadSettings();
 loadCurrentShortcut();

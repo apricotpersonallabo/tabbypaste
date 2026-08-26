@@ -82,6 +82,15 @@
     "optionsResetDone": {
         "message": "已重設為預設值。"
     },
+    "optionsFirefoxShortcutHint": {
+        "message": "Firefox 不會指定預設快速鍵，因為 Ctrl+Shift+V 已保留供「貼上為純文字」使用。請使用上方按鈕指定快速鍵。"
+    },
+    "optionsShortcutSettingsOpenFailed": {
+        "message": "無法開啟鍵盤快速鍵設定。請再試一次。"
+    },
+    "optionsFirefoxExtensionSettingsHint": {
+        "message": "若要在 Firefox 中管理 Tabby Paste，請開啟 Firefox 選單並選擇「附加元件和佈景主題」。"
+    },
     "welcomePageTitle": {
         "message": "歡迎使用 Tabby Paste"
     },

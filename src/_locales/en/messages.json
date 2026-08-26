@@ -153,6 +153,15 @@
     "optionsShortcutNotSet": {
         "message": "Not set"
     },
+    "optionsFirefoxShortcutHint": {
+        "message": "Firefox does not assign a default shortcut because Ctrl+Shift+V is reserved for Paste as Plain Text. Use the button above to assign a shortcut."
+    },
+    "optionsShortcutSettingsOpenFailed": {
+        "message": "Could not open keyboard shortcut settings. Please try again."
+    },
+    "optionsFirefoxExtensionSettingsHint": {
+        "message": "To manage Tabby Paste in Firefox, open the Firefox menu and choose Add-ons and themes."
+    },
     "optionsShortcutUnavailable": {
         "message": "Unavailable"
     },

@@ -82,6 +82,15 @@
     "optionsResetDone": {
         "message": "已重置为默认值。"
     },
+    "optionsFirefoxShortcutHint": {
+        "message": "Firefox 不会分配默认快捷键，因为 Ctrl+Shift+V 已保留用于“粘贴为纯文本”。请使用上方按钮分配快捷键。"
+    },
+    "optionsShortcutSettingsOpenFailed": {
+        "message": "无法打开键盘快捷键设置。请重试。"
+    },
+    "optionsFirefoxExtensionSettingsHint": {
+        "message": "要在 Firefox 中管理 Tabby Paste，请打开 Firefox 菜单并选择“扩展和主题”。"
+    },
     "welcomePageTitle": {
         "message": "欢迎使用 Tabby Paste"
     },

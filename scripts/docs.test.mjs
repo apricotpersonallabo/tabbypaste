@@ -87,6 +87,14 @@ test('official store links are present without a displayed version', () => {
   assert.doesNotMatch(pages['index.html'], /(?:version|v)\s*\d+\.\d+/i);
 });
 
+test('documents the browser-specific shortcut defaults in every language', () => {
+  for (const language of supportedLanguages) {
+    assert.match(translations[language]['manual.media.runCaption'], /Chromium/);
+    assert.match(translations[language]['manual.run.shortcutDescription'], /Firefox/);
+    assert.match(translations[language]['manual.settings.browserDescription'], /Firefox/);
+  }
+});
+
 test('external new-tab links use safe relationship attributes', () => {
   for (const [pageName, source] of Object.entries(pages)) {
     const anchorTags = collectMatches(source, /(<a\b[^>]*>)/g, 1);

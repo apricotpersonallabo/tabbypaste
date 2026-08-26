@@ -82,6 +82,15 @@
     "optionsResetDone": {
         "message": "Restablecido a los valores predeterminados."
     },
+    "optionsFirefoxShortcutHint": {
+        "message": "Firefox no asigna un atajo predeterminado porque Ctrl+Mayús+V está reservado para «Pegar como texto sin formato». Usa el botón anterior para asignar un atajo."
+    },
+    "optionsShortcutSettingsOpenFailed": {
+        "message": "No se pudo abrir la configuración de atajos de teclado. Inténtalo de nuevo."
+    },
+    "optionsFirefoxExtensionSettingsHint": {
+        "message": "Para administrar Tabby Paste en Firefox, abre el menú de Firefox y selecciona «Complementos y temas»."
+    },
     "welcomePageTitle": {
         "message": "Te damos la bienvenida a Tabby Paste"
     },

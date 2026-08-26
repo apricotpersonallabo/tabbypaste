@@ -73,8 +73,20 @@
       <h2 data-i18n="optionsBrowserSettings">Browser settings</h2>
 
       <div class="shortcut-settings-link">
-        <a id="shortcutSettingsLink" href="#" data-i18n="optionsShortcutSettings">Configure keyboard shortcuts</a>
+        <button
+          id="shortcutSettingsButton"
+          class="link-button"
+          type="button"
+          data-i18n="optionsShortcutSettings"
+        >Configure keyboard shortcuts</button>
       </div>
+
+      <p
+        id="firefoxShortcutHint"
+        class="firefox-shortcut-hint"
+        data-i18n="optionsFirefoxShortcutHint"
+        hidden
+      >Firefox does not assign a default shortcut because Ctrl+Shift+V is reserved for Paste as Plain Text. Use the button above to assign a shortcut.</p>
 
       <div class="current-shortcut">
         <span data-i18n="optionsCurrentShortcut">Current keyboard shortcut:</span>
@@ -83,6 +95,12 @@
 
       <div class="settings-links">
         <a id="extensionSettingsLink" href="#" data-i18n="optionsExtensionSettings">Manage this extension</a>
+        <p
+          id="firefoxExtensionSettingsHint"
+          class="firefox-extension-settings-hint"
+          data-i18n="optionsFirefoxExtensionSettingsHint"
+          hidden
+        >To manage Tabby Paste in Firefox, open the Firefox menu and choose Add-ons and themes.</p>
       </div>
     </section>
 
