@@ -1,35 +1,79 @@
-# OS and editor files
+# General
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
-.vscode/
-.idea/
-*.swp
-*~
+Desktop.ini
 
-# Credentials and local overrides
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Security: Sensitive files and credentials
 .env
 .env.*
 !.env.example
+!.env.*.example
 *.key
 *.pem
 *.p12
 secrets/
+config/private.js
+config/secrets.js
 manifest.local.json
 manifest.*.local.json
 
-# Dependencies and generated output
+# IDE
+.vscode/
+.idea/
+.history/
+*.swp
+*.swo
+*~
+
+# Dependencies and package-manager state
 node_modules/
 /.pnpm-store/
-/build/
+package-lock.json
+pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build and browser-extension outputs
 /dist/
+/build/
 /firefox-source/
 /web-ext-artifacts/
-/*.crx
-/*.xpi
 /*-v*-chromium.zip
 /*-v*-firefox.zip
+/*.crx
+/*.xpi
 
-# Test output and logs
+# Tests and tool caches
 /coverage/
+/.nyc_output/
 /test-results/
+/playwright-report/
+/.cache/
+
+# Runtime logs
 *.log

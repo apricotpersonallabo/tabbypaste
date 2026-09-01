@@ -6,7 +6,8 @@ Chrome、Microsoft Edge、Firefox 向けの Manifest V3 拡張機能テンプレ
 
 - Node.js 22
 - pnpm 11.19.0（Corepack の利用を推奨）
-- GitHub Actions でのパッケージ作成には `zip` と `jq`（GitHub-hosted runner に導入済み）
+- 完全テストには Docker と Docker Compose
+- ローカルでのパッケージ作成には `zip` と `unzip`
 
 ## 新しい拡張機能として使う
 
@@ -29,7 +30,7 @@ Chrome、Microsoft Edge、Firefox 向けの Manifest V3 拡張機能テンプレ
 ```sh
 corepack enable pnpm
 pnpm install --frozen-lockfile
-pnpm run check
+pnpm run test:fast
 pnpm run build:extensions
 ```
 
@@ -37,6 +38,12 @@ pnpm run build:extensions
 
 - `build/chromium/`: Chrome / Edge で「パッケージ化されていない拡張機能」として読み込む
 - `build/firefox/`: Firefox の `about:debugging` から `manifest.json` を読み込む
+
+ストア提出用ZIPを生成し、manifestや混入ファイルまで検証する場合は次を実行します。
+
+```sh
+pnpm run package:extensions
+```
 
 `src/manifest.json` と `src/manifest.firefox.json` の `version` は、テンプレート値 `0.0.0.1` のままにしてください。実際のバージョンは `version.json` だけで管理します。
 
@@ -50,12 +57,13 @@ pnpm run version:check
 ```text
 .
 ├── .github/workflows/main.yml   # CI、パッケージ、ストア送信、Release
+├── tests/e2e/                   # Chromium / Firefox 共通E2E
 ├── docs/                        # GitHub Pages 公開用サイト
 │   ├── assets/                  # CSS、JavaScript、サイト用アイコン
 │   ├── index.html               # 製品紹介・使い方・ストアリンク
 │   ├── privacy.html             # プライバシーポリシー雛形
 │   └── 404.html                 # Not Found ページ
-├── scripts/                     # バージョン同期・ストア送信・単体テスト
+├── scripts/                     # ビルド、パッケージ、テスト、ストア送信
 ├── src/                         # 拡張機能の共通ソース
 │   ├── _locales/                # Chrome i18n 文言
 │   ├── icons/                   # 16/32/48/128px アイコン
@@ -63,13 +71,34 @@ pnpm run version:check
 │   ├── manifest.json            # Chromium 用テンプレート
 │   └── manifest.firefox.json    # Firefox 用テンプレート
 ├── amo-metadata.json            # Firefox Add-ons の掲載情報
+├── compose.test.yml             # Docker完全テスト構成
+├── Dockerfile.test              # Node.jsテストランナー
+├── Dockerfile.selenium-*        # 固定バージョンのテストブラウザー
 ├── LICENSE                       # Apache License 2.0
 ├── package.json
 ├── pnpm-lock.yaml
 └── version.json                 # バージョンの唯一の更新元
 ```
 
-ビルドに必須なのは `package.json`、`version.json`、`scripts/sync-manifest-version.mjs`、`scripts/versioning.mjs`、`src/` 内の2つの manifest と拡張機能ファイルです。`.github/`、`docs/`、ストア送信スクリプト、`amo-metadata.json` は、それぞれ自動リリース、GitHub Pages、ストア送信を使わない場合は削除できます。
+ビルドに必須なのは `package.json`、`version.json`、`scripts/sync-manifest-version.mjs`、`scripts/versioning.mjs`、`src/` 内の2つの manifest と拡張機能ファイルです。`.github/`、`docs/`、Docker関連ファイル、ストア送信スクリプト、`amo-metadata.json` は、それぞれ自動リリース、GitHub Pages、完全E2E、ストア送信を使わない場合は削除できます。
+
+## 自動テスト
+
+Dockerを使う完全テストは、バージョン・構文・単体テスト、Firefox lint、パッケージ整合性、Chromium / Firefox E2Eをまとめて実行します。
+
+```sh
+pnpm test
+```
+
+E2Eは、設定画面での保存、ポップアップとの `chrome.storage.sync` 同期、ウェルカム画面のローカライズ・バージョン表示・設定画面への導線を実ブラウザーで確認します。テスト専用の拡張機能IDとChromium公開鍵は `build/e2e/` のコピーにだけ注入され、リリースZIPへの混入をパッケージ処理が拒否します。
+
+Dockerを起動しない高速検証は次のコマンドです。
+
+```sh
+pnpm run test:fast
+```
+
+ブラウザーテスト失敗時のスクリーンショット、HTML、ブラウザーログ、WebDriverログは `test-results/e2e/` に保存されます。
 
 ## GitHub Pages を公開する
 
@@ -81,7 +110,7 @@ GitHub公式手順: https://docs.github.com/en/pages/getting-started-with-github
 
 ## GitHub Actions とストア送信
 
-push / pull request では検証とパッケージ作成だけを行います。`main` から手動実行した場合は、設定済みのストアへ同じ成果物を送信し、成功後に GitHub Release を作成します。未設定のストアはスキップされ、設定が一部だけ存在するストアは安全のため失敗します。
+push / pull request ではDocker完全テストとパッケージ作成を行い、失敗時の診断ファイルを14日間保存します。`main` から手動実行した場合は、同じ検証済み成果物を設定済みのストアへ送信し、成功後に GitHub Release を作成します。未設定のストアはスキップされ、設定が一部だけ存在するストアは安全のため失敗します。
 
 GitHub Environment `browser-stores` を作成し、利用するストアの値をすべて設定してください。
 

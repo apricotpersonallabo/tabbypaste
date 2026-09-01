@@ -16,7 +16,7 @@ jobs:
   validate-and-package:
     name: Validate and package extensions
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     permissions:
       contents: read
     outputs:
@@ -46,17 +46,15 @@ jobs:
             exit 1
           fi
 
-      - name: Install pinned tooling
+      - name: Enable pinned package manager
         shell: bash
         run: |
           corepack enable pnpm
-          pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Validate version source and manifest templates
+      - name: Read release version
         id: version
         shell: bash
         run: |
-          pnpm run version:check
           VERSION=$(jq -r '.version' version.json)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
@@ -87,58 +85,26 @@ jobs:
             exit 1
           fi
 
-      - name: Check JavaScript and run unit tests
-        shell: bash
-        run: |
-          for source_file in scripts/*.mjs src/*.js docs/assets/*.js; do
-            node --check "$source_file"
-          done
-          node --test scripts/*.test.mjs
+      - name: Run all tests in Docker
+        run: pnpm test
 
-      - name: Create browser packages
+      - name: Upload E2E diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: browser-extension-test-results-${{ github.run_id }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Read verified package metadata
         id: package
         shell: bash
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG="${{ steps.version.outputs.tag }}"
-          REPO_NAME="${GITHUB_REPOSITORY##*/}"
-          CHROMIUM_ZIP="${REPO_NAME}-${TAG}-chromium.zip"
-          FIREFOX_ZIP="${REPO_NAME}-${TAG}-firefox.zip"
-
-          pnpm run build:extensions
-
-          pnpm exec web-ext lint --source-dir build/firefox --boring
-
-          (cd build/chromium && zip -qr "../../$CHROMIUM_ZIP" . \
-            -x 'node_modules/*' '*.map' '.DS_Store' '*.log')
-          (cd build/firefox && zip -qr "../../$FIREFOX_ZIP" . \
-            -x 'node_modules/*' '*.map' '.DS_Store' '*.log')
-
-          verify_package() {
-            local archive="$1"
-            local entries="$RUNNER_TEMP/$(basename "$archive").entries"
-
-            unzip -tq "$archive"
-            unzip -Z1 "$archive" | sed 's#^\./##' > "$entries"
-            if [[ "$(grep -cx 'manifest.json' "$entries")" -ne 1 ]]; then
-              echo "::error::$archive must contain exactly one root manifest.json."
-              exit 1
-            fi
-            if grep -Eq '(^|/)manifest\.firefox\.json$' "$entries"; then
-              echo "::error::$archive contains manifest.firefox.json."
-              exit 1
-            fi
-            if grep -Eq '(^|/)node_modules/|\.map$|(^|/)\.DS_Store$|\.log$' "$entries"; then
-              echo "::error::$archive contains an excluded file."
-              exit 1
-            fi
-            unzip -p "$archive" manifest.json \
-              | jq -e --arg version "$VERSION" '.version == $version' >/dev/null
-          }
-
-          verify_package "$CHROMIUM_ZIP"
-          verify_package "$FIREFOX_ZIP"
-
+          CHROMIUM_ZIP=$(jq -r '.chromiumZip' test-results/package-metadata.json)
+          FIREFOX_ZIP=$(jq -r '.firefoxZip' test-results/package-metadata.json)
+          test -f "$CHROMIUM_ZIP"
+          test -f "$FIREFOX_ZIP"
           echo "chromium_zip=$CHROMIUM_ZIP" >> "$GITHUB_OUTPUT"
           echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 

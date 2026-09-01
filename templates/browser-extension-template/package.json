@@ -4,12 +4,19 @@
   "packageManager": "pnpm@11.19.0",
   "scripts": {
     "build:extensions": "node scripts/sync-manifest-version.mjs",
-    "check": "pnpm run version:check && node --test scripts/*.test.mjs",
-    "test": "node --test scripts/*.test.mjs",
+    "package:extensions": "node scripts/package-extensions.mjs",
+    "test": "node scripts/run-docker-tests.mjs",
+    "test:all:container": "pnpm run test:fast && pnpm run package:extensions && pnpm run test:e2e:prepare && pnpm run test:e2e:container",
+    "test:e2e:container": "node scripts/run-e2e-tests.mjs",
+    "test:e2e:prepare": "node scripts/prepare-e2e.mjs",
+    "test:fast": "pnpm run version:check && pnpm run test:syntax && pnpm run test:unit",
+    "test:syntax": "node scripts/check-javascript.mjs",
+    "test:unit": "node --test scripts/*.test.mjs",
     "version:check": "node scripts/sync-manifest-version.mjs --check",
     "version:increment": "node scripts/sync-manifest-version.mjs --increment"
   },
   "devDependencies": {
+    "selenium-webdriver": "4.48.0",
     "web-ext": "10.6.0"
   }
 }
