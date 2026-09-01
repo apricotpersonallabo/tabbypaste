@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "version": "0.0.0.1",
+  "name": "__MSG_extName__",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_icon": {
+      "32": "icons/icon32.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "__MSG_openPopup__"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage"
+  ]
+}

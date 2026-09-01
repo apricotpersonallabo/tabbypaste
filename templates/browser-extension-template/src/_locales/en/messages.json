@@ -1,0 +1,75 @@
+{
+  "extName": {
+    "message": "CHANGE_ME Extension"
+  },
+  "extDescription": {
+    "message": "CHANGE_ME: Describe your browser extension."
+  },
+  "openPopup": {
+    "message": "Open extension"
+  },
+  "enabledLabel": {
+    "message": "Enable extension"
+  },
+  "optionsTitle": {
+    "message": "Extension settings"
+  },
+  "openOptions": {
+    "message": "Open settings"
+  },
+  "save": {
+    "message": "Save"
+  },
+  "saved": {
+    "message": "Saved."
+  },
+  "welcomePageTitle": {
+    "message": "Welcome to $extensionName$",
+    "placeholders": {
+      "extensionName": {
+        "content": "$1"
+      }
+    }
+  },
+  "welcomeEyebrow": {
+    "message": "Installation complete"
+  },
+  "welcomeHeading": {
+    "message": "Your extension is ready"
+  },
+  "welcomeIntro": {
+    "message": "Use this page to introduce the extension and guide people through their first steps."
+  },
+  "welcomeStepOneTitle": {
+    "message": "1. Review the extension"
+  },
+  "welcomeStepOneDescription": {
+    "message": "CHANGE_ME: Briefly explain the extension's primary purpose."
+  },
+  "welcomeStepTwoTitle": {
+    "message": "2. Configure settings"
+  },
+  "welcomeStepTwoDescription": {
+    "message": "Open settings and choose the options that fit your workflow."
+  },
+  "welcomeStepThreeTitle": {
+    "message": "3. Start using it"
+  },
+  "welcomeStepThreeDescription": {
+    "message": "CHANGE_ME: Explain the first action the user should take."
+  },
+  "welcomeVersion": {
+    "message": "Version $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "welcomeOpenSettings": {
+    "message": "Open settings"
+  },
+  "welcomeClose": {
+    "message": "Close"
+  }
+}

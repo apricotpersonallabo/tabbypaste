@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="optionsTitle">Extension settings</title>
+    <link rel="stylesheet" href="options.css">
+    <script src="options.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1 data-i18n="optionsTitle">Extension settings</h1>
+      <form id="optionsForm">
+        <label>
+          <input id="enabled" type="checkbox">
+          <span data-i18n="enabledLabel">Enable extension</span>
+        </label>
+        <button type="submit" data-i18n="save">Save</button>
+        <output id="status" aria-live="polite"></output>
+      </form>
+    </main>
+  </body>
+</html>

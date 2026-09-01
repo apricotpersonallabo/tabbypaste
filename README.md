@@ -44,6 +44,24 @@ Load `build/chromium` as the unpacked Chrome or Edge extension. For Firefox, loa
 
 Pushes and pull requests validate the source templates and package generated builds but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
 
+## Automated tests
+
+Docker is the canonical test environment used by GitHub Actions. It runs the existing Node.js tests, JavaScript syntax and version checks, Firefox extension linting, package-integrity checks, and Chromium and Firefox end-to-end tests:
+
+```sh
+pnpm test
+```
+
+The end-to-end tests load test-only copies of the built extensions into pinned Selenium browser containers. They copy TSV data through the real Clipboard API and exercise the browser command, background script, content injection, form filling, settings persistence, URL filtering, and warning paths. Test-only extension IDs and keyboard shortcuts are never included in release packages.
+
+For a fast local check that does not require Docker or start browsers, run:
+
+```sh
+pnpm run test:fast
+```
+
+Failed browser tests save screenshots, page HTML, browser logs, and Selenium WebDriver logs under `test-results/e2e/`. Docker and Docker Compose are required for the full suite.
+
 ## Automated store submissions
 
 The manual release workflow submits the same packages to every configured browser store in parallel. It creates the GitHub release only after all configured store submissions succeed. A store is disabled when all of its settings are absent; a partially configured store fails the workflow.

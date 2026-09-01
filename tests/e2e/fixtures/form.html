@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tabby Paste E2E form</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    label { display: block; margin: 0 0 1rem; }
+    .hidden-field { display: none; }
+  </style>
+</head>
+<body>
+  <button id="copyHappy" type="button">Copy test row</button>
+  <button id="copyEmpty" type="button">Copy empty text</button>
+  <output id="clipboardStatus" aria-live="polite"></output>
+
+  <form id="testForm">
+    <label>Name <input id="textField" type="text"></label>
+    <label class="hidden-field">Hidden <input id="hiddenField" type="text"></label>
+    <label>Disabled <input id="disabledField" type="text" disabled></label>
+    <label>Read only <input id="readonlyField" type="text" readonly></label>
+    <label>Password <input id="passwordField" type="password"></label>
+    <label>Notes <textarea id="textareaField"></textarea></label>
+    <label>Department
+      <select id="selectField">
+        <option value="">Choose a department</option>
+        <option value="sales">Sales</option>
+        <option value="eng">Engineering</option>
+      </select>
+    </label>
+  </form>
+
+  <script>
+    const clipboardStatus = document.getElementById('clipboardStatus');
+    const copyText = async text => {
+      await navigator.clipboard.writeText(text);
+      clipboardStatus.textContent = 'copied';
+    };
+
+    document.getElementById('copyHappy').addEventListener('click', () => {
+      copyText('Alpha\tS3cret\tLong note\teng\tUnused value');
+    });
+    document.getElementById('copyEmpty').addEventListener('click', () => copyText(''));
+
+    window.fixtureEvents = {};
+    for (const element of document.querySelectorAll('input, textarea, select')) {
+      window.fixtureEvents[element.id] = { input: 0, change: 0 };
+      for (const eventName of ['input', 'change']) {
+        element.addEventListener(eventName, () => {
+          window.fixtureEvents[element.id][eventName]++;
+        });
+      }
+    }
+  </script>
+</body>
+</html>

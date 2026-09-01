@@ -1,0 +1,35 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
+
+# Credentials and local overrides
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets/
+manifest.local.json
+manifest.*.local.json
+
+# Dependencies and generated output
+node_modules/
+/.pnpm-store/
+/build/
+/dist/
+/firefox-source/
+/web-ext-artifacts/
+/*.crx
+/*.xpi
+/*-v*-chromium.zip
+/*-v*-firefox.zip
+
+# Test output and logs
+/coverage/
+/test-results/
+*.log

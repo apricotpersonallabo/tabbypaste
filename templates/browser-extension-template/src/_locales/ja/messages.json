@@ -1,0 +1,75 @@
+{
+  "extName": {
+    "message": "CHANGE_ME 拡張機能"
+  },
+  "extDescription": {
+    "message": "CHANGE_ME: ブラウザー拡張機能の説明を記載してください。"
+  },
+  "openPopup": {
+    "message": "拡張機能を開く"
+  },
+  "enabledLabel": {
+    "message": "拡張機能を有効にする"
+  },
+  "optionsTitle": {
+    "message": "拡張機能の設定"
+  },
+  "openOptions": {
+    "message": "設定を開く"
+  },
+  "save": {
+    "message": "保存"
+  },
+  "saved": {
+    "message": "保存しました。"
+  },
+  "welcomePageTitle": {
+    "message": "$extensionName$へようこそ",
+    "placeholders": {
+      "extensionName": {
+        "content": "$1"
+      }
+    }
+  },
+  "welcomeEyebrow": {
+    "message": "インストール完了"
+  },
+  "welcomeHeading": {
+    "message": "拡張機能を利用できます"
+  },
+  "welcomeIntro": {
+    "message": "このページで拡張機能を紹介し、最初の操作を案内できます。"
+  },
+  "welcomeStepOneTitle": {
+    "message": "1. 拡張機能を確認"
+  },
+  "welcomeStepOneDescription": {
+    "message": "CHANGE_ME: 拡張機能の主な目的を簡潔に説明してください。"
+  },
+  "welcomeStepTwoTitle": {
+    "message": "2. 設定を調整"
+  },
+  "welcomeStepTwoDescription": {
+    "message": "設定画面を開き、用途に合ったオプションを選択します。"
+  },
+  "welcomeStepThreeTitle": {
+    "message": "3. 利用を開始"
+  },
+  "welcomeStepThreeDescription": {
+    "message": "CHANGE_ME: 利用者が最初に行う操作を説明してください。"
+  },
+  "welcomeVersion": {
+    "message": "バージョン $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "welcomeOpenSettings": {
+    "message": "設定を開く"
+  },
+  "welcomeClose": {
+    "message": "閉じる"
+  }
+}

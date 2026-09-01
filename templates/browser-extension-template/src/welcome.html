@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome</title>
+    <link rel="stylesheet" href="welcome.css">
+    <script src="welcome.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <img src="icons/icon128.png" width="96" height="96" alt="">
+        <div>
+          <p class="eyebrow" data-i18n="welcomeEyebrow">Installation complete</p>
+          <h1 data-i18n="welcomeHeading">Your extension is ready</h1>
+          <p class="intro" data-i18n="welcomeIntro">A short introduction to the extension.</p>
+          <p id="version" class="version"></p>
+        </div>
+      </header>
+
+      <section class="steps" aria-label="Getting started">
+        <article>
+          <h2 data-i18n="welcomeStepOneTitle">1. Review the extension</h2>
+          <p data-i18n="welcomeStepOneDescription">Learn what the extension does.</p>
+        </article>
+        <article>
+          <h2 data-i18n="welcomeStepTwoTitle">2. Configure settings</h2>
+          <p data-i18n="welcomeStepTwoDescription">Choose your preferred options.</p>
+        </article>
+        <article>
+          <h2 data-i18n="welcomeStepThreeTitle">3. Start using it</h2>
+          <p data-i18n="welcomeStepThreeDescription">Try the extension for the first time.</p>
+        </article>
+      </section>
+
+      <div class="actions">
+        <button id="openSettings" class="primary" type="button" data-i18n="welcomeOpenSettings">Open settings</button>
+        <button id="closeWelcome" type="button" data-i18n="welcomeClose">Close</button>
+      </div>
+    </main>
+  </body>
+</html>

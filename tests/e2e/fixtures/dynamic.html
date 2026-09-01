@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tabby Paste dynamic select fixture</title>
+</head>
+<body>
+  <button id="copyDynamic" type="button">Copy dynamic row</button>
+  <output id="clipboardStatus" aria-live="polite"></output>
+  <label>Trigger <input id="dynamicText" type="text"></label>
+  <label>Dynamic department
+    <select id="dynamicSelect">
+      <option value="">Waiting for options</option>
+    </select>
+  </label>
+
+  <script>
+    const textField = document.getElementById('dynamicText');
+    const selectField = document.getElementById('dynamicSelect');
+    textField.addEventListener('change', () => {
+      setTimeout(() => {
+        const option = document.createElement('option');
+        option.value = 'eng';
+        option.textContent = 'Engineering';
+        selectField.append(option);
+      }, 40);
+    });
+    document.getElementById('copyDynamic').addEventListener('click', async () => {
+      await navigator.clipboard.writeText('Dynamic\tEngine');
+      document.getElementById('clipboardStatus').textContent = 'copied';
+    });
+  </script>
+</body>
+</html>

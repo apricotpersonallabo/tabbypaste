@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tabby Paste empty fixture</title>
+</head>
+<body>
+  <button id="copyValue" type="button">Copy value</button>
+  <output id="clipboardStatus" aria-live="polite"></output>
+  <p>This page intentionally has no eligible form fields.</p>
+  <script>
+    document.getElementById('copyValue').addEventListener('click', async () => {
+      await navigator.clipboard.writeText('No destination');
+      document.getElementById('clipboardStatus').textContent = 'copied';
+    });
+  </script>
+</body>
+</html>

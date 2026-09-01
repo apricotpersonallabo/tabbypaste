@@ -1,0 +1,10 @@
+FROM selenium/standalone-firefox:4.46.0-20260707
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends xdotool \
+    && rm -rf /var/lib/apt/lists/*
+COPY tests/e2e/support/shortcut-server.py /opt/bin/shortcut-server.py
+COPY tests/e2e/support/shortcut-server.conf /etc/supervisor/conf.d/shortcut-server.conf
+RUN chmod 755 /opt/bin/shortcut-server.py
+USER 1200

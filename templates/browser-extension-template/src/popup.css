@@ -1,0 +1,30 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 260px;
+}
+
+main {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+h1 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.toggle {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+button {
+  padding: 0.55rem 0.8rem;
+}

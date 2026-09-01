@@ -1,0 +1,12 @@
+{
+  "summary": {
+    "en-US": "CHANGE_ME: Describe what your browser extension does.",
+    "ja": "CHANGE_ME: ブラウザー拡張機能の概要を記載してください。"
+  },
+  "categories": [
+    "other"
+  ],
+  "version": {
+    "license": "Apache-2.0"
+  }
+}
