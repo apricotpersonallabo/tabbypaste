@@ -62,7 +62,7 @@ const verifyPackage = async (archivePath, expectedVersion) => {
 };
 
 const packageConfig = await readJson(resolve(projectRoot, 'package.json'));
-const versionConfig = await readJson(resolve(projectRoot, 'version.json'));
+const versionConfig = await readJson(resolve(projectRoot, 'config', 'version.json'));
 const version = versionConfig.version;
 const tag = `v${version}`;
 const chromiumZip = `${packageConfig.name}-${tag}-chromium.zip`;

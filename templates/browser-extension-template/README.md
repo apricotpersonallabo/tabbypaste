@@ -16,7 +16,7 @@ Chrome、Microsoft Edge、Firefox 向けの Manifest V3 拡張機能テンプレ
    - `package.json` の `name`
    - `src/_locales/en/messages.json` と `src/_locales/ja/messages.json` の名前・説明
    - `src/manifest.firefox.json` の `browser_specific_settings.gecko.id`
-   - `amo-metadata.json` の説明
+   - `config/amo-metadata.json` の説明
    - `src/icons/` の仮アイコン
    - `docs/` 内の `CHANGE_ME`、ストアURL、問い合わせ先、プライバシーポリシー
 3. 必要な権限だけを両方の manifest に追加します。
@@ -52,7 +52,7 @@ pnpm run package:extensions
 
 `test-results/package-metadata.json` にはCI・リリース処理で利用するZIPのファイル名が出力されます。
 
-`src/manifest.json` と `src/manifest.firefox.json` の `version` は、テンプレート値 `0.0.0.1` のままにしてください。実際のバージョンは `version.json` だけで管理します。
+`src/manifest.json` と `src/manifest.firefox.json` の `version` は、テンプレート値 `0.0.0.1` のままにしてください。実際のバージョンは `config/version.json` だけで管理します。
 
 ```sh
 pnpm run version:increment
@@ -64,7 +64,13 @@ pnpm run version:check
 ```text
 .
 ├── .github/workflows/main.yml   # CI、パッケージ、ストア送信、Release
-├── tests/e2e/                   # Chromium / Firefox 共通E2E
+├── config/                      # バージョンとストア掲載情報
+│   ├── version.json             # バージョンの唯一の更新元
+│   └── amo-metadata.json        # Firefox Add-ons の掲載情報
+├── docker/                      # Docker完全テスト構成
+│   ├── compose.test.yml
+│   ├── Dockerfile.test
+│   └── Dockerfile.selenium-*
 ├── docs/                        # GitHub Pages 公開用サイト
 │   ├── assets/                  # CSS、JavaScript、サイト用アイコン
 │   ├── index.html               # 製品紹介・使い方・ストアリンク
@@ -78,17 +84,13 @@ pnpm run version:check
 │   ├── welcome.*                # 初回インストール時の案内画面
 │   ├── manifest.json            # Chromium 用テンプレート
 │   └── manifest.firefox.json    # Firefox 用テンプレート
-├── amo-metadata.json            # Firefox Add-ons の掲載情報
-├── compose.test.yml             # Docker完全テスト構成
-├── Dockerfile.test              # Node.jsテストランナー
-├── Dockerfile.selenium-*        # 固定バージョンのテストブラウザー
-├── LICENSE                       # Apache License 2.0
+├── tests/e2e/                   # Chromium / Firefox 共通E2E
+├── LICENSE                      # Apache License 2.0
 ├── package.json
-├── pnpm-lock.yaml
-└── version.json                 # バージョンの唯一の更新元
+└── pnpm-lock.yaml
 ```
 
-ビルドに必須なのは `package.json`、`version.json`、`scripts/sync-manifest-version.mjs`、`scripts/versioning.mjs`、`src/` 内の2つの manifest と拡張機能ファイルです。`.github/`、`docs/`、Docker関連ファイル、ストア送信スクリプト、`amo-metadata.json` は、それぞれ自動リリース、GitHub Pages、完全E2E、ストア送信を使わない場合は削除できます。
+ビルドに必須なのは `package.json`、`config/version.json`、`scripts/sync-manifest-version.mjs`、`scripts/versioning.mjs`、`src/` 内の2つの manifest と拡張機能ファイルです。`.github/`、`docs/`、`docker/`、ストア送信スクリプト、`config/amo-metadata.json` は、それぞれ自動リリース、GitHub Pages、完全E2E、ストア送信を使わない場合は削除できます。
 
 ## 自動テスト
 

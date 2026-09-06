@@ -1,20 +1,18 @@
-name: tabbypaste-tests
+name: browser-extension-template-tests
 
 services:
   tests:
     build:
-      context: .
-      dockerfile: Dockerfile.test
-    image: tabbypaste/test-runner:22.23.2
+      context: ..
+      dockerfile: docker/Dockerfile.test
+    image: browser-extension-template/test-runner:22.23.2
     init: true
     user: "${TEST_UID:-1000}:${TEST_GID:-1000}"
     environment:
-      CHROMIUM_SHORTCUT_URL: http://chromium:9010/shortcut
-      FIREFOX_SHORTCUT_URL: http://firefox:9010/shortcut
       SELENIUM_CHROMIUM_URL: http://chromium:4444/wd/hub
       SELENIUM_FIREFOX_URL: http://firefox:4444/wd/hub
     volumes:
-      - .:/workspace
+      - ..:/workspace
     depends_on:
       chromium:
         condition: service_healthy
@@ -23,9 +21,9 @@ services:
 
   chromium:
     build:
-      context: .
-      dockerfile: Dockerfile.selenium-chromium
-    image: tabbypaste/selenium-chromium:4.46.0-20260707
+      context: ..
+      dockerfile: docker/Dockerfile.selenium-chromium
+    image: browser-extension-template/selenium-chromium:4.46.0-20260707
     shm_size: 2gb
     healthcheck:
       test: ["CMD", "/opt/bin/check-grid.sh"]
@@ -33,13 +31,13 @@ services:
       timeout: 5s
       retries: 24
     volumes:
-      - .:/workspace:ro
+      - ..:/workspace:ro
 
   firefox:
     build:
-      context: .
-      dockerfile: Dockerfile.selenium-firefox
-    image: tabbypaste/selenium-firefox:4.46.0-20260707
+      context: ..
+      dockerfile: docker/Dockerfile.selenium-firefox
+    image: browser-extension-template/selenium-firefox:4.46.0-20260707
     shm_size: 2gb
     healthcheck:
       test: ["CMD", "/opt/bin/check-grid.sh"]
@@ -47,4 +45,4 @@ services:
       timeout: 5s
       retries: 24
     volumes:
-      - .:/workspace:ro
+      - ..:/workspace:ro

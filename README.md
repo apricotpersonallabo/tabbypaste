@@ -22,19 +22,19 @@ The Firefox package uses `manifest.firefox.json` as its source manifest. Release
 
 ## Version management
 
-`version.json` is the single source of truth for the extension version. The source manifests are templates whose version remains `0.0.0.1`. Increment only `version.json` with:
+`config/version.json` is the single source of truth for the extension version. The source manifests are templates whose version remains `0.0.0.1`. Increment only `config/version.json` with:
 
 ```sh
 pnpm run version:increment
 ```
 
-Commit `version.json`. To validate it and confirm that both source manifests still use the template version, run:
+Commit `config/version.json`. To validate it and confirm that both source manifests still use the template version, run:
 
 ```sh
 pnpm run version:check
 ```
 
-Generate local development builds with the real version from `version.json` by running:
+Generate local development builds with the real version from `config/version.json` by running:
 
 ```sh
 pnpm run build:extensions
@@ -51,6 +51,24 @@ pnpm run package:extensions
 The Chromium and Firefox archives are written to `dist/`. The package metadata in `test-results/package-metadata.json` keeps their file names for CI and release jobs.
 
 Pushes and pull requests validate the source templates and package generated builds but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
+
+## Repository layout
+
+```text
+.
+├── .github/                    # CI, store submission, and releases
+├── config/                     # Version and browser-store metadata
+├── docker/                     # Docker Compose and test images
+├── docs/                       # GitHub Pages user documentation
+├── scripts/                    # Build, packaging, and automation
+├── src/                        # Shared browser-extension source
+├── tests/                      # Chromium and Firefox E2E fixtures
+└── templates/
+    ├── browser-extension-template/
+    └── browser-extension-template.zip
+```
+
+The repository root keeps only documentation and standard project-management files. Generated `build/`, `dist/`, and `test-results/` directories remain untracked.
 
 ## Automated tests
 
@@ -84,7 +102,7 @@ Create a GitHub Environment named `browser-stores`. Add the following Environmen
 
 The Chrome credentials need the `https://www.googleapis.com/auth/chromewebstore` OAuth scope. Enable the Microsoft Edge Publish API v1.1 in Partner Center before creating the Edge API key. Generate the Firefox JWT credentials from the AMO developer credentials page.
 
-Chrome and Edge products must be created in their developer dashboards before the first automated update. Firefox uses `amo-metadata.json` to create the initial AMO listing when necessary and to provide update metadata afterward.
+Chrome and Edge products must be created in their developer dashboards before the first automated update. Firefox uses `config/amo-metadata.json` to create the initial AMO listing when necessary and to provide update metadata afterward.
 
 Chrome Web Store listing metadata is managed in the Developer Dashboard and is not populated by the submission API. Complete and save every required Store listing and Privacy practices field before running a release. Tabby Paste uses these permission justifications:
 

@@ -95,7 +95,7 @@ export const runVersionCommand = async (rawArgs, root = projectRoot) => {
     throw new Error('--check and --increment cannot be used together.');
   }
 
-  const versionPath = resolve(root, 'version.json');
+  const versionPath = resolve(root, 'config', 'version.json');
   const sourceRoot = resolve(root, 'src');
   const versionConfig = await readJson(versionPath);
   let version = versionConfig.version;

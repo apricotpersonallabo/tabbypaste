@@ -50,7 +50,7 @@ export const assertVersionsSynchronized = (expectedVersion, manifests) => {
   for (const { label, version } of manifests) {
     validateVersion(version);
     if (version !== expectedVersion) {
-      throw new Error(`${label} version ${version} does not match version.json ${expectedVersion}.`);
+      throw new Error(`${label} version ${version} does not match config/version.json ${expectedVersion}.`);
     }
   }
 };

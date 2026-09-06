@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const projectRoot = resolve(import.meta.dirname, '..');
-const composeArgs = ['compose', '-f', 'compose.test.yml'];
+const composeArgs = ['compose', '-f', 'docker/compose.test.yml'];
 const environment = {
   ...process.env,
   TEST_UID: typeof process.getuid === 'function' ? String(process.getuid()) : (process.env.TEST_UID || '1000'),

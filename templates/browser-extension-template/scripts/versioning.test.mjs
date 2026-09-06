@@ -24,10 +24,15 @@ const createVersionFixture = async t => {
   const root = await mkdtemp(path.join(tmpdir(), 'browser-extension-template-version-'));
   t.after(() => rm(root, { recursive: true, force: true }));
 
+  const configRoot = path.join(root, 'config');
   const sourceRoot = path.join(root, 'src');
-  await mkdir(path.join(sourceRoot, 'nested'), { recursive: true });
+  const versionPath = path.join(configRoot, 'version.json');
   await Promise.all([
-    writeJson(path.join(root, 'version.json'), { version: '1.0.13' }),
+    mkdir(configRoot, { recursive: true }),
+    mkdir(path.join(sourceRoot, 'nested'), { recursive: true })
+  ]);
+  await Promise.all([
+    writeJson(versionPath, { version: '1.0.13' }),
     writeJson(path.join(sourceRoot, 'manifest.json'), {
       manifest_version: 3,
       version: MANIFEST_TEMPLATE_VERSION,
@@ -42,7 +47,7 @@ const createVersionFixture = async t => {
     writeFile(path.join(sourceRoot, 'nested', 'background.js'), 'void 0;\n', 'utf8')
   ]);
 
-  return { root, sourceRoot };
+  return { root, sourceRoot, versionPath };
 };
 
 test('validates supported browser extension versions', () => {
@@ -90,14 +95,14 @@ test('rejects mismatched manifest versions', () => {
   assert.throws(() => assertVersionsSynchronized('1.0.12', [
     { label: 'Chromium manifest', version: '1.0.11' },
     { label: 'Firefox manifest', version: '1.0.12' }
-  ]), /Chromium manifest version 1\.0\.11 does not match version\.json 1\.0\.12/);
+  ]), /Chromium manifest version 1\.0\.11 does not match config\/version\.json 1\.0\.12/);
 });
 
-test('builds both browser directories from dummy templates using version.json', async t => {
-  const { root, sourceRoot } = await createVersionFixture(t);
+test('builds both browser directories from dummy templates using config/version.json', async t => {
+  const { root, sourceRoot, versionPath } = await createVersionFixture(t);
   const buildRoot = path.join(root, 'build');
 
-  await writeJson(path.join(root, 'version.json'), { version: '1.0.14' });
+  await writeJson(versionPath, { version: '1.0.14' });
   await runVersionCommand([], root);
 
   const chromiumManifest = await readJson(path.join(buildRoot, 'chromium', 'manifest.json'));
@@ -116,11 +121,11 @@ test('builds both browser directories from dummy templates using version.json', 
   await access(path.join(buildRoot, 'firefox', 'nested', 'background.js'));
 });
 
-test('increments only version.json and rejects changed template versions', async t => {
-  const { root, sourceRoot } = await createVersionFixture(t);
+test('increments only config/version.json and rejects changed template versions', async t => {
+  const { root, sourceRoot, versionPath } = await createVersionFixture(t);
 
   assert.equal(await runVersionCommand(['--increment'], root), '1.0.14');
-  assert.equal((await readJson(path.join(root, 'version.json'))).version, '1.0.14');
+  assert.equal((await readJson(versionPath)).version, '1.0.14');
   assert.equal((await readJson(path.join(sourceRoot, 'manifest.json'))).version, MANIFEST_TEMPLATE_VERSION);
   assert.equal(
     (await readJson(path.join(sourceRoot, 'manifest.firefox.json'))).version,
@@ -136,9 +141,9 @@ test('increments only version.json and rejects changed template versions', async
   await assert.rejects(access(path.join(root, 'build', 'chromium')));
 });
 
-test('rejects invalid version.json before creating build output', async t => {
-  const { root } = await createVersionFixture(t);
-  await writeJson(path.join(root, 'version.json'), { version: '1.0.invalid' });
+test('rejects invalid config/version.json before creating build output', async t => {
+  const { root, versionPath } = await createVersionFixture(t);
+  await writeJson(versionPath, { version: '1.0.invalid' });
 
   await assert.rejects(runVersionCommand([], root), /Invalid browser extension version/);
   await assert.rejects(access(path.join(root, 'build', 'chromium')));
