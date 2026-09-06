@@ -7,6 +7,7 @@ import { FIREFOX_ADDON_ID } from './e2e-configuration.mjs';
 
 const projectRoot = resolve(import.meta.dirname, '..');
 const buildRoot = resolve(projectRoot, 'build');
+const distRoot = resolve(projectRoot, 'dist');
 const resultsRoot = resolve(projectRoot, 'test-results');
 
 const readJson = async filePath => JSON.parse(await readFile(filePath, 'utf8'));
@@ -66,8 +67,8 @@ const version = versionConfig.version;
 const tag = `v${version}`;
 const chromiumZip = `${packageConfig.name}-${tag}-chromium.zip`;
 const firefoxZip = `${packageConfig.name}-${tag}-firefox.zip`;
-const chromiumArchive = resolve(projectRoot, chromiumZip);
-const firefoxArchive = resolve(projectRoot, firefoxZip);
+const chromiumArchive = resolve(distRoot, chromiumZip);
+const firefoxArchive = resolve(distRoot, firefoxZip);
 
 await buildBrowserExtensions({
   sourceRoot: resolve(projectRoot, 'src'),
@@ -75,6 +76,7 @@ await buildBrowserExtensions({
   version
 });
 await run('pnpm', ['exec', 'web-ext', 'lint', '--source-dir', resolve(buildRoot, 'firefox'), '--boring']);
+await mkdir(distRoot, { recursive: true });
 await Promise.all([
   rm(chromiumArchive, { force: true }),
   rm(firefoxArchive, { force: true })
@@ -100,4 +102,4 @@ await writeFile(resolve(resultsRoot, 'package-metadata.json'), `${JSON.stringify
   firefoxZip
 }, null, 2)}\n`, 'utf8');
 
-console.log(`Built and verified ${chromiumZip} and ${firefoxZip}.`);
+console.log(`Built and verified dist/${chromiumZip} and dist/${firefoxZip}.`);

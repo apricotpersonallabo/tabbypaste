@@ -45,6 +45,13 @@ pnpm run build:extensions
 pnpm run package:extensions
 ```
 
+生成先:
+
+- `dist/browser-extension-template-v<version>-chromium.zip`
+- `dist/browser-extension-template-v<version>-firefox.zip`
+
+`test-results/package-metadata.json` にはCI・リリース処理で利用するZIPのファイル名が出力されます。
+
 `src/manifest.json` と `src/manifest.firefox.json` の `version` は、テンプレート値 `0.0.0.1` のままにしてください。実際のバージョンは `version.json` だけで管理します。
 
 ```sh
@@ -64,6 +71,7 @@ pnpm run version:check
 │   ├── privacy.html             # プライバシーポリシー雛形
 │   └── 404.html                 # Not Found ページ
 ├── scripts/                     # ビルド、パッケージ、テスト、ストア送信
+├── dist/                        # 検証済みのストア提出用ZIP（生成物）
 ├── src/                         # 拡張機能の共通ソース
 │   ├── _locales/                # Chrome i18n 文言
 │   ├── icons/                   # 16/32/48/128px アイコン

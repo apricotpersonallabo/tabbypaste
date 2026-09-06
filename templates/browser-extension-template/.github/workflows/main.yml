@@ -103,8 +103,8 @@ jobs:
         run: |
           CHROMIUM_ZIP=$(jq -r '.chromiumZip' test-results/package-metadata.json)
           FIREFOX_ZIP=$(jq -r '.firefoxZip' test-results/package-metadata.json)
-          test -f "$CHROMIUM_ZIP"
-          test -f "$FIREFOX_ZIP"
+          test -f "dist/$CHROMIUM_ZIP"
+          test -f "dist/$FIREFOX_ZIP"
           echo "chromium_zip=$CHROMIUM_ZIP" >> "$GITHUB_OUTPUT"
           echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 
@@ -114,8 +114,8 @@ jobs:
         with:
           name: browser-extension-packages-${{ steps.version.outputs.version }}
           path: |
-            ${{ steps.package.outputs.chromium_zip }}
-            ${{ steps.package.outputs.firefox_zip }}
+            dist/${{ steps.package.outputs.chromium_zip }}
+            dist/${{ steps.package.outputs.firefox_zip }}
           if-no-files-found: error
           retention-days: 7
 

@@ -42,6 +42,14 @@ pnpm run build:extensions
 
 Load `build/chromium` as the unpacked Chrome or Edge extension. For Firefox, load `build/firefox/manifest.json`. Do not load `src/` directly when verifying the extension version.
 
+Generate verified store packages with:
+
+```sh
+pnpm run package:extensions
+```
+
+The Chromium and Firefox archives are written to `dist/`. The package metadata in `test-results/package-metadata.json` keeps their file names for CI and release jobs.
+
 Pushes and pull requests validate the source templates and package generated builds but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
 
 ## Automated tests

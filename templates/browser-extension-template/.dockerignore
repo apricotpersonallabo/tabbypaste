@@ -11,5 +11,3 @@ templates
 *.crx
 *.log
 *.xpi
-*-v*-chromium.zip
-*-v*-firefox.zip

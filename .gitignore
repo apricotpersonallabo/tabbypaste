@@ -63,8 +63,6 @@ yarn-error.log*
 /build/
 /firefox-source/
 /web-ext-artifacts/
-/tabbypaste-v*-chromium.zip
-/tabbypaste-v*-firefox.zip
 /*.crx
 /*.xpi
 
