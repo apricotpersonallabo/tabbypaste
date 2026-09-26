@@ -249,6 +249,19 @@ jobs:
           mkdir firefox-source
           unzip -q "dist/$ARCHIVE" -d firefox-source
 
+      - name: Locate Firefox Add-ons metadata
+        if: matrix.store == 'firefox'
+        shell: bash
+        run: |
+          if [[ -f config/amo-metadata.json ]]; then
+            echo 'AMO_METADATA_PATH=config/amo-metadata.json' >> "$GITHUB_ENV"
+          elif [[ -f amo-metadata.json ]]; then
+            echo 'AMO_METADATA_PATH=amo-metadata.json' >> "$GITHUB_ENV"
+          else
+            echo '::error::Firefox Add-ons metadata is missing from the selected source revision.'
+            exit 1
+          fi
+
       - name: Install pinned Firefox submission tooling
         if: matrix.store == 'firefox'
         shell: bash
@@ -261,4 +274,4 @@ jobs:
         env:
           WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
           WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
-        run: pnpm exec web-ext sign --source-dir firefox-source --channel listed --amo-metadata config/amo-metadata.json --approval-timeout 0 --no-input
+        run: pnpm exec web-ext sign --source-dir firefox-source --channel listed --amo-metadata "$AMO_METADATA_PATH" --approval-timeout 0 --no-input
