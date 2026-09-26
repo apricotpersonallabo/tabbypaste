@@ -1,0 +1,264 @@
+name: Resubmit existing browser packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      store:
+        description: Browser store to resubmit to
+        required: true
+        type: choice
+        options: [all, chrome, edge, firefox]
+        default: all
+      release_tag:
+        description: GitHub Release tag (leave blank for the latest release)
+        required: false
+        type: string
+      source_run_id:
+        description: Existing packaging workflow run ID (use its artifact instead of a Release)
+        required: false
+        type: string
+
+permissions: {}
+
+jobs:
+  resolve-source:
+    name: Select existing packages and stores
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source_type: ${{ steps.source.outputs.source_type }}
+      source_run_id: ${{ steps.source.outputs.source_run_id }}
+      artifact_name: ${{ steps.source.outputs.artifact_name }}
+      tag: ${{ steps.source.outputs.tag }}
+      ref: ${{ steps.source.outputs.ref }}
+      matrix: ${{ steps.stores.outputs.matrix }}
+    steps:
+      - name: Resolve existing package source
+        id: source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ inputs.release_tag }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$REQUESTED_TAG" && -n "$SOURCE_RUN_ID" ]]; then
+            echo "::error::Specify either release_tag or source_run_id, not both."
+            exit 1
+          fi
+
+          if [[ -n "$SOURCE_RUN_ID" ]]; then
+            if [[ ! "$SOURCE_RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
+              echo "::error::source_run_id must be a numeric Actions run ID."
+              exit 1
+            fi
+            RUN_JSON="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID")"
+            RUN_PATH="$(jq -er '.path' <<< "$RUN_JSON")"
+            RUN_EVENT="$(jq -er '.event' <<< "$RUN_JSON")"
+            REF="$(jq -er '.head_sha' <<< "$RUN_JSON")"
+            case "$RUN_PATH" in
+              .github/workflows/main.yml|.github/workflows/main.yml@*) ;;
+              *) echo "::error::The selected run is not the packaging workflow."; exit 1 ;;
+            esac
+            if [[ "$RUN_EVENT" != workflow_dispatch || ! "$REF" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "::error::The selected run is not a valid manual packaging run."
+              exit 1
+            fi
+            ARTIFACT_NAME="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" \
+              --jq '[.artifacts[] | select(.expired == false and (.name | startswith("browser-extension-packages-"))) | .name] | if length == 1 then .[0] else error("Expected exactly one unexpired package artifact") end')"
+            TAG="v${ARTIFACT_NAME#browser-extension-packages-}"
+            echo "source_type=run" >> "$GITHUB_OUTPUT"
+            echo "source_run_id=$SOURCE_RUN_ID" >> "$GITHUB_OUTPUT"
+            echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+          else
+            TAG="$REQUESTED_TAG"
+            if [[ -z "$TAG" ]]; then
+              TAG="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq '.tagName')"
+            fi
+            REF="$TAG"
+            echo "source_type=release" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ ! "$TAG" =~ ^v(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*)){0,3}$ ]]; then
+            echo "::error::Unsupported release tag: $TAG"
+            exit 1
+          fi
+          if [[ -z "$SOURCE_RUN_ID" ]]; then
+            IS_DRAFT="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
+            if [[ "$IS_DRAFT" != false ]]; then
+              echo "::error::Release $TAG is still a draft."
+              exit 1
+            fi
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+
+      - name: Select store jobs
+        id: stores
+        shell: bash
+        env:
+          STORE: ${{ inputs.store }}
+        run: |
+          case "$STORE" in
+            all) MATRIX='{"include":[{"store":"chrome","archive":"chromium"},{"store":"edge","archive":"chromium"},{"store":"firefox","archive":"firefox"}]}' ;;
+            chrome) MATRIX='{"include":[{"store":"chrome","archive":"chromium"}]}' ;;
+            edge) MATRIX='{"include":[{"store":"edge","archive":"chromium"}]}' ;;
+            firefox) MATRIX='{"include":[{"store":"firefox","archive":"firefox"}]}' ;;
+            *) echo "::error::Unknown browser store: $STORE"; exit 1 ;;
+          esac
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  submit-store:
+    name: Submit to ${{ matrix.store }}
+    needs: resolve-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      actions: read
+      contents: read
+    environment: browser-stores
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.resolve-source.outputs.matrix) }}
+    steps:
+      - name: Check out matching metadata and submission scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve-source.outputs.ref }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Require Chrome Web Store configuration
+        if: matrix.store == 'chrome'
+        shell: bash
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+        run: |
+          for name in CHROME_CLIENT_ID CHROME_CLIENT_SECRET CHROME_REFRESH_TOKEN CHROME_PUBLISHER_ID CHROME_EXTENSION_ID; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Chrome Web Store requires $name."
+              exit 1
+            fi
+          done
+
+      - name: Require Microsoft Edge Add-ons configuration
+        if: matrix.store == 'edge'
+        shell: bash
+        env:
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+        run: |
+          for name in EDGE_CLIENT_ID EDGE_API_KEY EDGE_PRODUCT_ID; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Microsoft Edge Add-ons requires $name."
+              exit 1
+            fi
+          done
+
+      - name: Require Firefox Add-ons configuration
+        if: matrix.store == 'firefox'
+        shell: bash
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          if [[ -z "$WEB_EXT_API_KEY" || -z "$WEB_EXT_API_SECRET" ]]; then
+            echo "::error::AMO_JWT_ISSUER and AMO_JWT_SECRET are required."
+            exit 1
+          fi
+
+      - name: Download package from GitHub Release
+        if: needs.resolve-source.outputs.source_type == 'release'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.resolve-source.outputs.tag }}
+          ARCHIVE: tabbypaste-${{ needs.resolve-source.outputs.tag }}-${{ matrix.archive }}.zip
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "$ARCHIVE" --dir dist
+
+      - name: Download package from existing run
+        if: needs.resolve-source.outputs.source_type == 'run'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ needs.resolve-source.outputs.source_run_id }}
+          ARTIFACT_NAME: ${{ needs.resolve-source.outputs.artifact_name }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir dist
+
+      - name: Verify existing package
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ needs.resolve-source.outputs.tag }}
+          ARCHIVE: tabbypaste-${{ needs.resolve-source.outputs.tag }}-${{ matrix.archive }}.zip
+        run: |
+          set -euo pipefail
+          test -f "dist/$ARCHIVE"
+          unzip -tq "dist/$ARCHIVE"
+          VERSION="$(unzip -p "dist/$ARCHIVE" manifest.json | jq -er '.version')"
+          if [[ "$VERSION" != "${RELEASE_TAG#v}" ]]; then
+            echo "::error::Package version $VERSION does not match source version $RELEASE_TAG."
+            exit 1
+          fi
+
+      - name: Upload and submit Chrome package
+        if: matrix.store == 'chrome'
+        env:
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          ARCHIVE: tabbypaste-${{ needs.resolve-source.outputs.tag }}-chromium.zip
+        run: node scripts/submit-store.mjs chrome "dist/$ARCHIVE"
+
+      - name: Upload and submit Edge package
+        if: matrix.store == 'edge'
+        env:
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
+          EDGE_PUBLISH_NOTES: Release ${{ needs.resolve-source.outputs.tag }} from GitHub Actions.
+          ARCHIVE: tabbypaste-${{ needs.resolve-source.outputs.tag }}-chromium.zip
+        run: node scripts/submit-store.mjs edge "dist/$ARCHIVE"
+
+      - name: Extract Firefox package
+        if: matrix.store == 'firefox'
+        shell: bash
+        env:
+          ARCHIVE: tabbypaste-${{ needs.resolve-source.outputs.tag }}-firefox.zip
+        run: |
+          mkdir firefox-source
+          unzip -q "dist/$ARCHIVE" -d firefox-source
+
+      - name: Install pinned Firefox submission tooling
+        if: matrix.store == 'firefox'
+        shell: bash
+        run: |
+          corepack enable pnpm
+          pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Upload and submit Firefox package
+        if: matrix.store == 'firefox'
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: pnpm exec web-ext sign --source-dir firefox-source --channel listed --amo-metadata config/amo-metadata.json --approval-timeout 0 --no-input

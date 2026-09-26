@@ -115,6 +115,8 @@ For an approval gate before credentials become available to the jobs, configure 
 
 The workflow installs the exact `web-ext` version recorded in `package.json` and `pnpm-lock.yaml`. Update both files together when upgrading the Firefox submission tooling.
 
+To resubmit existing packages without rebuilding or creating another GitHub Release, run **Resubmit existing browser packages** from the Actions page. Choose `all`, `chrome`, `edge`, or `firefox` in `store`; `all` submits to the three stores in parallel. Leave both source inputs empty to use the latest GitHub Release, or enter an existing `release_tag` such as `v1.0.13`. If the original release did not finish, enter its `source_run_id` instead to use the package artifact from that manual run (retained for 7 days). Set only one source input. Chrome and Edge use the existing Chromium ZIP, while Firefox uses the Firefox ZIP. Each selected job verifies its ZIP's manifest version and uses the submission scripts and metadata from the matching tag or run commit. The `browser-stores` Environment must contain the selected stores' credentials and variables; a selected store fails if its configuration is missing. A store may reject a version that has already been submitted there.
+
 ## User manual
 You can see the user manual in this repository.
 https://apricotpersonallabo.github.io/tabbypaste/
