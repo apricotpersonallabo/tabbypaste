@@ -9,10 +9,10 @@ import {
   CHROMIUM_EXTENSION_ID,
   FIREFOX_ADDON_ID,
   FIREFOX_EXTENSION_UUID
-} from '../../../scripts/e2e-configuration.mjs';
+} from '../../../scripts/test/e2e-configuration.mjs';
 
 const projectRoot = resolve(import.meta.dirname, '..', '..', '..');
-const e2eRoot = resolve(projectRoot, 'build', 'e2e');
+const e2eRoot = resolve(projectRoot, 'artifacts', 'extensions', 'e2e');
 
 const loggingPreferences = () => {
   const preferences = new logging.Preferences();
@@ -33,7 +33,7 @@ const prepareBrowserWindow = async (driver, extensionOrigin) => {
 };
 
 export const createChromiumBrowser = async () => {
-  const extensionRoot = '/workspace/build/e2e/chromium';
+  const extensionRoot = '/workspace/artifacts/extensions/e2e/chromium';
   const options = new chrome.Options()
     .setAcceptInsecureCerts(true)
     .setLoggingPrefs(loggingPreferences())

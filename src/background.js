@@ -168,7 +168,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
   try {
     await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
+      target: { tabId: tab.id, frameIds: [info.frameId ?? 0] },
       files: ['filler.js']
     });
   } catch (e) {

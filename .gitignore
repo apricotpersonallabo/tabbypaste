@@ -58,18 +58,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build and browser-extension outputs
-/dist/
-/build/
-/firefox-source/
-/web-ext-artifacts/
+# Generated artifacts
+/artifacts/
 /*.crx
 /*.xpi
 
 # Tests and tool caches
 /coverage/
 /.nyc_output/
-/test-results/
 /playwright-report/
 /.cache/
 

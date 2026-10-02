@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tabby Paste E2E frames</title>
+</head>
+<body>
+  <button id="copyHappy" type="button">Copy test row</button>
+  <output id="clipboardStatus"></output>
+  <input id="topField" type="text">
+  <iframe id="siblingFrame" src="form.html" title="Sibling form" width="600" height="450"></iframe>
+  <iframe id="formFrame" src="form.html" title="Form" width="600" height="450"></iframe>
+  <iframe id="nestedFrame" src="frame-container.html" title="Nested form" width="650" height="550"></iframe>
+  <iframe id="inlineFrame" srcdoc="<input id='textField' type='text'><input id='passwordField' type='password'><textarea id='textareaField'></textarea><select id='selectField'><option value=''></option><option value='eng'>Engineering</option></select>" title="Inline form"></iframe>
+  <script>
+    document.getElementById('copyHappy').addEventListener('click', async () => {
+      await navigator.clipboard.writeText('Alpha\tS3cret\tLong note\teng\tUnused value');
+      document.getElementById('clipboardStatus').textContent = 'copied';
+    });
+  </script>
+</body>
+</html>

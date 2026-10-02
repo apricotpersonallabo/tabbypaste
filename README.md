@@ -5,6 +5,8 @@ Tabby Paste is a browser extension for Chrome, Edge, and Firefox. This extension
 ## Overview
 A cross-browser extension project. Auto paste tab-separated strings from the clipboard to each input field.
 
+Pasting starts at the focused input and stays within its document. Same-origin iframes, including nested frames and `srcdoc` documents, are supported through both the shortcut and context menu. URL enablement is checked against the top-level page. Cross-origin frames and sandboxed frames without same-origin access require additional site permissions and are not supported by the current permission set.
+
 ## Install
 You can install from the Chrome Web Store and Microsoft Edge Add-ons.
 
@@ -40,7 +42,7 @@ Generate local development builds with the real version from `config/version.jso
 pnpm run build:extensions
 ```
 
-Load `build/chromium` as the unpacked Chrome or Edge extension. For Firefox, load `build/firefox/manifest.json`. Do not load `src/` directly when verifying the extension version.
+Load `artifacts/extensions/chromium` as the unpacked Chrome or Edge extension. For Firefox, load `artifacts/extensions/firefox/manifest.json`. Do not load `src/` directly when verifying the extension version.
 
 Generate verified store packages with:
 
@@ -48,7 +50,7 @@ Generate verified store packages with:
 pnpm run package:extensions
 ```
 
-The Chromium and Firefox archives are written to `dist/`. The package metadata in `test-results/package-metadata.json` keeps their file names for CI and release jobs.
+The Chromium and Firefox archives are written to `artifacts/packages/`. The package metadata in `artifacts/test-results/package-metadata.json` keeps their file names for CI and release jobs.
 
 Pushes and pull requests validate the source templates and package generated builds but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
 
@@ -56,19 +58,38 @@ Pushes and pull requests validate the source templates and package generated bui
 
 ```text
 .
-├── .github/                    # CI, store submission, and releases
-├── config/                     # Version and browser-store metadata
-├── docker/                     # Docker Compose and test images
-├── docs/                       # GitHub Pages user documentation
-├── scripts/                    # Build, packaging, and automation
-├── src/                        # Shared browser-extension source
-├── tests/                      # Chromium and Firefox E2E fixtures
+├── .github/                       # GitHub Actions workflows
+├── config/                        # Build and release configuration
+│   ├── version.json               # Single source of truth for the version
+│   └── stores/                    # Browser-store metadata
+├── docs/                          # GitHub Pages user documentation
+├── scripts/                       # Development and CI automation
+│   ├── extension/                 # Versioning, builds, and packages
+│   ├── release/                   # Store validation and submission
+│   ├── template/                  # Template archive maintenance
+│   └── test/                      # Syntax, Docker, and E2E runners
+├── src/                           # Shared browser-extension source
+├── tests/
+│   ├── unit/                      # Node.js unit tests
+│   └── e2e/
+│       ├── docker/                # E2E Compose and browser images
+│       ├── fixtures/              # Browser test pages
+│       └── support/               # E2E helpers and diagnostics
 └── templates/
-    ├── browser-extension-template/
-    └── browser-extension-template.zip
+    ├── browser-extension/         # Reusable template source
+    └── packages/                  # Downloadable template archives
 ```
 
-The repository root keeps only documentation and standard project-management files. Generated `build/`, `dist/`, and `test-results/` directories remain untracked.
+The repository root keeps only documentation and standard project-management files. Every generated file is grouped under the untracked `artifacts/` directory:
+
+```text
+artifacts/
+├── extensions/                    # Chromium, Firefox, and E2E builds
+├── packages/                      # Verified store-submission ZIP files
+└── test-results/                  # Package metadata and test diagnostics
+```
+
+To update the reusable browser-extension template after editing `templates/browser-extension/`, run `pnpm run template:package`. `pnpm run template:check` verifies that the source and `templates/packages/browser-extension-template.zip` have identical files and contents.
 
 ## Automated tests
 
@@ -86,7 +107,7 @@ For a fast local check that does not require Docker or start browsers, run:
 pnpm run test:fast
 ```
 
-Failed browser tests save screenshots, page HTML, browser logs, and Selenium WebDriver logs under `test-results/e2e/`. Docker and Docker Compose are required for the full suite.
+Failed browser tests save screenshots, page HTML, browser logs, and Selenium WebDriver logs under `artifacts/test-results/e2e/`. Docker and Docker Compose are required for the full suite.
 
 ## Automated store submissions
 
@@ -102,7 +123,7 @@ Create a GitHub Environment named `browser-stores`. Add the following Environmen
 
 The Chrome credentials need the `https://www.googleapis.com/auth/chromewebstore` OAuth scope. Enable the Microsoft Edge Publish API v1.1 in Partner Center before creating the Edge API key. Generate the Firefox JWT credentials from the AMO developer credentials page.
 
-Chrome and Edge products must be created in their developer dashboards before the first automated update. Firefox uses `config/amo-metadata.json` to create the initial AMO listing when necessary and to provide update metadata afterward.
+Chrome and Edge products must be created in their developer dashboards before the first automated update. Firefox uses `config/stores/firefox-addons.json` to create the initial AMO listing when necessary and to provide update metadata afterward.
 
 Chrome Web Store listing metadata is managed in the Developer Dashboard and is not populated by the submission API. Complete and save every required Store listing and Privacy practices field before running a release. Tabby Paste uses these permission justifications:
 

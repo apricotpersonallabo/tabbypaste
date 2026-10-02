@@ -6,7 +6,7 @@ import test from 'node:test';
 import { By, logging, until } from 'selenium-webdriver';
 
 const projectRoot = resolve(import.meta.dirname, '..', '..', '..');
-const resultsRoot = resolve(projectRoot, 'test-results', 'e2e');
+const resultsRoot = resolve(projectRoot, 'artifacts', 'test-results', 'e2e');
 const baseUrl = process.env.E2E_BASE_URL || 'https://tests:4173';
 const defaultSettings = {
   delayMs: 0,
@@ -155,6 +155,42 @@ export const registerExtensionContract = ({ browserName, createBrowser }) => {
       await waitForValue(driver, 'dynamicText', 'Dynamic');
       await waitForValue(driver, 'dynamicSelect', 'eng');
     });
+
+    for (const framePath of [['formFrame'], ['nestedFrame', 'innerFrame'], ['inlineFrame']]) {
+      await runScenario(t, driver, extensionOrigin, browserName, `fills only the focused frame: ${framePath.join('/')}`, async () => {
+        await driver.get(`${baseUrl}/frames.html`);
+        // Leave a stale activeElement in a sibling document before focusing the target.
+        await driver.switchTo().frame(await driver.findElement(By.id('siblingFrame')));
+        await driver.findElement(By.id('textField')).click();
+        await driver.switchTo().defaultContent();
+        await copyFromFixture(driver, 'copyHappy');
+        for (const frameId of framePath) {
+          const frame = await driver.findElement(By.id(frameId));
+          await driver.executeScript('arguments[0].scrollIntoView({ block: "center" })', frame);
+          await driver.switchTo().frame(frame);
+        }
+        await driver.findElement(By.id('textField')).click();
+        assert.equal(await driver.executeScript('return document.activeElement.id'), 'textField');
+        await sendExtensionShortcut(shortcutUrl);
+
+        await waitForValue(driver, 'textField', 'Alpha');
+        await waitForValue(driver, 'passwordField', 'S3cret');
+        await waitForValue(driver, 'textareaField', 'Long note');
+        await waitForValue(driver, 'selectField', 'eng');
+        assert.equal(await driver.findElements(By.id('tabby-paste-notification-host')).then(elements => elements.length), 0);
+
+        if (framePath.length > 1) {
+          await driver.switchTo().parentFrame();
+          assert.equal(await driver.findElement(By.id('containerField')).getAttribute('value'), '');
+        }
+        await driver.switchTo().defaultContent();
+        assert.equal(await driver.findElement(By.id('topField')).getAttribute('value'), '');
+        assert.equal(await driver.findElements(By.id('tabby-paste-notification-host')).then(elements => elements.length), 0);
+        await driver.switchTo().frame(await driver.findElement(By.id('siblingFrame')));
+        assert.equal(await driver.findElement(By.id('textField')).getAttribute('value'), '');
+        await driver.switchTo().defaultContent();
+      });
+    }
 
     await runScenario(t, driver, extensionOrigin, browserName, 'persists options through storage.sync', async () => {
       await waitForExtensionPage(driver, extensionOrigin);

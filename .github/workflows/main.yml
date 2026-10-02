@@ -93,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: browser-extension-test-results-${{ github.run_id }}
-          path: test-results/
+          path: artifacts/test-results/
           if-no-files-found: ignore
           retention-days: 14
 
@@ -101,10 +101,10 @@ jobs:
         id: package
         shell: bash
         run: |
-          CHROMIUM_ZIP=$(jq -r '.chromiumZip' test-results/package-metadata.json)
-          FIREFOX_ZIP=$(jq -r '.firefoxZip' test-results/package-metadata.json)
-          test -f "dist/$CHROMIUM_ZIP"
-          test -f "dist/$FIREFOX_ZIP"
+          CHROMIUM_ZIP=$(jq -r '.chromiumZip' artifacts/test-results/package-metadata.json)
+          FIREFOX_ZIP=$(jq -r '.firefoxZip' artifacts/test-results/package-metadata.json)
+          test -f "artifacts/packages/$CHROMIUM_ZIP"
+          test -f "artifacts/packages/$FIREFOX_ZIP"
           echo "chromium_zip=$CHROMIUM_ZIP" >> "$GITHUB_OUTPUT"
           echo "firefox_zip=$FIREFOX_ZIP" >> "$GITHUB_OUTPUT"
 
@@ -114,8 +114,8 @@ jobs:
         with:
           name: browser-extension-packages-${{ steps.version.outputs.version }}
           path: |
-            dist/${{ steps.package.outputs.chromium_zip }}
-            dist/${{ steps.package.outputs.firefox_zip }}
+            artifacts/packages/${{ steps.package.outputs.chromium_zip }}
+            artifacts/packages/${{ steps.package.outputs.firefox_zip }}
           if-no-files-found: error
           retention-days: 7
 
@@ -148,7 +148,7 @@ jobs:
           CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
           CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
         run: >-
-          node scripts/check-store-configuration.mjs "Chrome Web Store"
+          node scripts/release/check-store-configuration.mjs "Chrome Web Store"
           CHROME_CLIENT_ID CHROME_CLIENT_SECRET CHROME_REFRESH_TOKEN
           CHROME_PUBLISHER_ID CHROME_EXTENSION_ID
 
@@ -157,7 +157,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
-          path: dist
+          path: artifacts/packages
 
       - name: Upload and submit Chrome package
         if: steps.config.outputs.enabled == 'true'
@@ -167,7 +167,7 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
           CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
-        run: node scripts/submit-store.mjs chrome "dist/${{ needs.validate-and-package.outputs.chromium_zip }}"
+        run: node scripts/release/submit-store.mjs chrome "artifacts/packages/${{ needs.validate-and-package.outputs.chromium_zip }}"
 
   submit-edge:
     name: Submit to Microsoft Edge Add-ons
@@ -196,7 +196,7 @@ jobs:
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
         run: >-
-          node scripts/check-store-configuration.mjs "Microsoft Edge Add-ons"
+          node scripts/release/check-store-configuration.mjs "Microsoft Edge Add-ons"
           EDGE_CLIENT_ID EDGE_API_KEY EDGE_PRODUCT_ID
 
       - name: Download browser packages
@@ -204,7 +204,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
-          path: dist
+          path: artifacts/packages
 
       - name: Upload and submit Edge package
         if: steps.config.outputs.enabled == 'true'
@@ -213,7 +213,7 @@ jobs:
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           EDGE_PRODUCT_ID: ${{ vars.EDGE_PRODUCT_ID }}
           EDGE_PUBLISH_NOTES: Release ${{ needs.validate-and-package.outputs.version }} from GitHub Actions.
-        run: node scripts/submit-store.mjs edge "dist/${{ needs.validate-and-package.outputs.chromium_zip }}"
+        run: node scripts/release/submit-store.mjs edge "artifacts/packages/${{ needs.validate-and-package.outputs.chromium_zip }}"
 
   submit-firefox:
     name: Submit to Firefox Add-ons
@@ -241,7 +241,7 @@ jobs:
           WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
           WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
         run: >-
-          node scripts/check-store-configuration.mjs "Firefox Add-ons"
+          node scripts/release/check-store-configuration.mjs "Firefox Add-ons"
           WEB_EXT_API_KEY WEB_EXT_API_SECRET
 
       - name: Download browser packages
@@ -249,14 +249,14 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
-          path: dist
+          path: artifacts/packages
 
       - name: Extract Firefox package
         if: steps.config.outputs.enabled == 'true'
         shell: bash
         run: |
-          mkdir firefox-source
-          unzip -q "dist/${{ needs.validate-and-package.outputs.firefox_zip }}" -d firefox-source
+          mkdir -p artifacts/extensions/firefox-submission
+          unzip -q "artifacts/packages/${{ needs.validate-and-package.outputs.firefox_zip }}" -d artifacts/extensions/firefox-submission
 
       - name: Install pinned Firefox submission tooling
         if: steps.config.outputs.enabled == 'true'
@@ -270,7 +270,7 @@ jobs:
         env:
           WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
           WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
-        run: pnpm exec web-ext sign --source-dir firefox-source --channel listed --amo-metadata config/amo-metadata.json --approval-timeout 0 --no-input
+        run: pnpm exec web-ext sign --source-dir artifacts/extensions/firefox-submission --artifacts-dir artifacts/packages --channel listed --amo-metadata config/stores/firefox-addons.json --approval-timeout 0 --no-input
 
   publish-release:
     name: Publish GitHub Release
@@ -289,7 +289,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: browser-extension-packages-${{ needs.validate-and-package.outputs.version }}
-          path: dist
+          path: artifacts/packages
 
       - name: Create GitHub Release after store submissions
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
@@ -300,7 +300,7 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: |
-            dist/${{ needs.validate-and-package.outputs.chromium_zip }}
-            dist/${{ needs.validate-and-package.outputs.firefox_zip }}
+            artifacts/packages/${{ needs.validate-and-package.outputs.chromium_zip }}
+            artifacts/packages/${{ needs.validate-and-package.outputs.firefox_zip }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

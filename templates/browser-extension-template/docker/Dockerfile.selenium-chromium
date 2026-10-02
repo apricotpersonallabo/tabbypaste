@@ -1,1 +1,0 @@
-FROM selenium/standalone-chromium:4.46.0-20260707

@@ -1,4 +1,17 @@
 (async () => {
+  // Follow the focused frame chain. activeTab allows access to same-origin
+  // documents, including nested frames, without requesting extra host access.
+  let document = globalThis.document;
+  while (document.activeElement?.matches('iframe, frame')) {
+    const childDocument = document.activeElement.contentDocument;
+    if (!childDocument) break; // Cross-origin or sandboxed frame.
+    document = childDocument;
+  }
+  const {
+    HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement,
+    Event, KeyboardEvent, MutationObserver
+  } = document.defaultView;
+
   const showNotification = (message, type = 'error') => {
     const hostId = 'tabby-paste-notification-host';
     document.getElementById(hostId)?.remove();

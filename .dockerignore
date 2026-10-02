@@ -1,12 +1,9 @@
 .git
 .github
-build
+artifacts
 coverage
-dist
-firefox-source
 node_modules
 playwright-report
-test-results
 templates
 *.crx
 *.log

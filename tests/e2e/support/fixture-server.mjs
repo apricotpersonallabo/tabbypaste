@@ -9,6 +9,8 @@ const fixtureFiles = new Map([
   ['/', 'form.html'],
   ['/form.html', 'form.html'],
   ['/dynamic.html', 'dynamic.html'],
+  ['/frames.html', 'frames.html'],
+  ['/frame-container.html', 'frame-container.html'],
   ['/no-fields.html', 'no-fields.html']
 ]);
 
