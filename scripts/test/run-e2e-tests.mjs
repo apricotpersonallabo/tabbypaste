@@ -20,7 +20,8 @@ try {
       cwd: projectRoot,
       env: {
         ...process.env,
-        E2E_BASE_URL: fixtureServer.baseUrl
+        E2E_BASE_URL: fixtureServer.baseUrl,
+        E2E_HTTP_BASE_URL: fixtureServer.httpBaseUrl
       },
       stdio: 'inherit'
     });

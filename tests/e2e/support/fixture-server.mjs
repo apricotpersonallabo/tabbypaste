@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
-import { createServer } from 'node:https';
+import { createServer as createHttpServer } from 'node:http';
+import { createServer as createHttpsServer } from 'node:https';
 import { tmpdir } from 'node:os';
 import { extname, resolve } from 'node:path';
 
@@ -11,6 +12,8 @@ const fixtureFiles = new Map([
   ['/dynamic.html', 'dynamic.html'],
   ['/frames.html', 'frames.html'],
   ['/frame-container.html', 'frame-container.html'],
+  ['/legacy-frames.html', 'legacy-frames.html'],
+  ['/legacy-nested-frames.html', 'legacy-nested-frames.html'],
   ['/no-fields.html', 'no-fields.html']
 ]);
 
@@ -35,16 +38,14 @@ export const startFixtureServer = async () => {
     throw new Error(`Could not create the E2E HTTPS certificate: ${openssl.stderr}`);
   }
 
-  const server = createServer({
-    key: await readFile(keyPath),
-    cert: await readFile(certificatePath)
-  }, async (request, response) => {
+  const serveFixture = async (request, response) => {
     if (request.url === '/health') {
       response.writeHead(204);
       response.end();
       return;
     }
-    const pathname = new URL(request.url || '/', 'https://tests').pathname;
+    const url = new URL(request.url || '/', 'https://tests');
+    const pathname = url.pathname;
     const fixtureName = fixtureFiles.get(pathname);
     if (!fixtureName) {
       response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
@@ -55,6 +56,7 @@ export const startFixtureServer = async () => {
       const fixturePath = resolve(fixturesRoot, fixtureName);
       response.writeHead(200, {
         'content-type': contentTypes.get(extname(fixturePath)) || 'application/octet-stream',
+        ...(url.searchParams.has('clipboardDenied') ? { 'permissions-policy': 'clipboard-read=()' } : {}),
         'cache-control': 'no-store'
       });
       response.end(await readFile(fixturePath));
@@ -62,19 +64,27 @@ export const startFixtureServer = async () => {
       response.writeHead(500, { 'content-type': 'text/plain; charset=utf-8' });
       response.end(String(error));
     }
-  });
+  };
+  const server = createHttpsServer({
+    key: await readFile(keyPath),
+    cert: await readFile(certificatePath)
+  }, serveFixture);
+  const httpServer = createHttpServer(serveFixture);
 
-  await new Promise((resolveListen, reject) => {
+  const listen = (server, port) => new Promise((resolveListen, reject) => {
     server.once('error', reject);
-    server.listen(4173, '0.0.0.0', resolveListen);
+    server.listen(port, '0.0.0.0', resolveListen);
   });
+  await listen(server, 4173);
+  await listen(httpServer, 4174);
 
   return {
     baseUrl: 'https://tests:4173',
+    httpBaseUrl: 'http://tests:4174',
     async close() {
-      await new Promise((resolveClose, reject) => {
+      await Promise.all([server, httpServer].map(server => new Promise((resolveClose, reject) => {
         server.close(error => error ? reject(error) : resolveClose());
-      });
+      })));
       await rm(certificateRoot, { recursive: true, force: true });
     }
   };

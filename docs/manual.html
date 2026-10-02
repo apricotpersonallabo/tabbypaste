@@ -201,7 +201,7 @@
         <section class="content-section" id="fields">
           <p class="section-kicker" data-i18n="manual.fields.kicker">Field behavior</p>
           <h2 data-i18n="manual.fields.title">Supported fields and matching rules.</h2>
-          <p class="content-lead" data-i18n="manual.fields.description">Tabby Paste scans visible, enabled, editable fields in document order within the focused document. Same-origin iframes, including nested frames, are supported; pasting stays within that frame.</p>
+          <p class="content-lead" data-i18n="manual.fields.description">Tabby Paste scans visible, enabled, editable fields in document order within the focused document. Same-origin iframes and legacy frame/frameset pages, including nested or mixed frames, are supported; pasting stays within that frame.</p>
           <ul>
             <li data-i18n="manual.fields.text">Text and password inputs are filled character by character and emit input and change events.</li>
             <li data-i18n="manual.fields.textarea">Textareas are supported and existing values are replaced.</li>
@@ -290,7 +290,7 @@
           <div class="trouble-grid">
             <article class="trouble-card">
               <h3 data-i18n="manual.trouble.clipboardTitle">Clipboard could not be read</h3>
-              <p data-i18n="manual.trouble.clipboardDescription">Copy the row again, keep the page active, and rerun Tabby Paste from a user action.</p>
+              <p data-i18n="manual.trouble.clipboardDescription">HTTP pages are supported: if the page cannot read the clipboard, the extension reads it while preserving focus. If reading still fails, copy the row again, keep the page active, and rerun Tabby Paste.</p>
             </article>
             <article class="trouble-card">
               <h3 data-i18n="manual.trouble.emptyTitle">No text in the clipboard</h3>
@@ -298,7 +298,7 @@
             </article>
             <article class="trouble-card">
               <h3 data-i18n="manual.trouble.fieldsTitle">No input fields found</h3>
-              <p data-i18n="manual.trouble.fieldsDescription">Confirm the focused document uses a supported visible field. For iframes, use a same-origin frame; shadow roots are not supported.</p>
+              <p data-i18n="manual.trouble.fieldsDescription">Confirm the focused document uses a supported visible field. For iframe or legacy frame/frameset pages, use same-origin frames; shadow roots are not supported.</p>
             </article>
             <article class="trouble-card">
               <h3 data-i18n="manual.trouble.focusTitle">Focus an input field first</h3>
@@ -330,6 +330,7 @@
               <tbody>
                 <tr><td><code>activeTab</code>, <code>scripting</code></td><td data-i18n="manual.privacy.activeTab">Run the paste helper only in the active tab after you invoke it.</td></tr>
                 <tr><td><code>clipboardRead</code></td><td data-i18n="manual.privacy.clipboard">Read the copied row when Tabby Paste runs.</td></tr>
+                <tr><td><code>offscreen</code> (Chrome, Edge)</td><td data-i18n="manual.privacy.offscreen">Create a temporary hidden document in Chrome and Edge to read clipboard text while keeping the input and frame focused.</td></tr>
                 <tr><td><code>contextMenus</code></td><td data-i18n="manual.privacy.context">Provide the page context-menu command.</td></tr>
                 <tr><td><code>storage</code></td><td data-i18n="manual.privacy.storage">Save and browser-sync your preferences.</td></tr>
                 <tr><td><code>tabs</code></td><td data-i18n="manual.privacy.tabs">Check the current URL, update the icon and badge, and open extension pages.</td></tr>

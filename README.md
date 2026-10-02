@@ -5,7 +5,9 @@ Tabby Paste is a browser extension for Chrome, Edge, and Firefox. This extension
 ## Overview
 A cross-browser extension project. Auto paste tab-separated strings from the clipboard to each input field.
 
-Pasting starts at the focused input and stays within its document. Same-origin iframes, including nested frames and `srcdoc` documents, are supported through both the shortcut and context menu. URL enablement is checked against the top-level page. Cross-origin frames and sandboxed frames without same-origin access require additional site permissions and are not supported by the current permission set.
+Pasting starts at the focused input and stays within its document. Same-origin `iframe` elements and legacy `frame`/`frameset` pages, including nested or mixed frames and `srcdoc` documents, are supported through both the shortcut and context menu. URL enablement is checked against the top-level page. Cross-origin frames and sandboxed frames without same-origin access require additional site permissions and are not supported by the current permission set.
+
+On HTTP pages, or when the page cannot use the Clipboard API, clipboard text is read in the extension without opening a tab or changing the focused input or frame. Chrome and Edge use a temporary offscreen document (Chromium 109 or later); Firefox reads in its background document.
 
 ## Install
 You can install from the Chrome Web Store and Microsoft Edge Add-ons.
@@ -93,7 +95,7 @@ Docker is the canonical test environment used by GitHub Actions. It runs the exi
 pnpm test
 ```
 
-The end-to-end tests load test-only copies of the built extensions into pinned Selenium browser containers. They copy TSV data through the real Clipboard API and exercise the browser command, background script, content injection, form filling, settings persistence, URL filtering, and warning paths. Test-only extension IDs and keyboard shortcuts are never included in release packages.
+The end-to-end tests load test-only copies of the built extensions into pinned Selenium browser containers. They copy TSV data through the real Clipboard API and exercise the browser command, background script, content injection, form filling, settings persistence, URL filtering, and warning paths. HTTP and clipboard-policy fixtures verify extension-side clipboard reads, including empty text, repeated invocations, and input/frame focus preservation. Test-only extension IDs and keyboard shortcuts are never included in release packages.
 
 For a fast local check that does not require Docker or start browsers, run:
 

@@ -11,6 +11,47 @@ const ICON_PATHS = {
 };
 
 let grayscaleIconsPromise;
+let clipboardReadQueue = Promise.resolve();
+
+const readClipboardInExtension = () => {
+  // Serialize offscreen reads so one request cannot close another's document.
+  const read = clipboardReadQueue.then(async () => {
+    // Firefox has a background document with access to the Clipboard API.
+    if (globalThis.navigator?.clipboard?.readText) {
+      return navigator.clipboard.readText();
+    }
+
+    // Chromium service workers need a DOM document. An offscreen document
+    // reads without opening a tab or taking focus from the destination frame.
+    const url = chrome.runtime.getURL('clipboard.html');
+    const contexts = chrome.runtime.getContexts
+      ? await chrome.runtime.getContexts({
+        contextTypes: ['OFFSCREEN_DOCUMENT'], documentUrls: [url]
+      })
+      : await clients.matchAll();
+    if (!contexts.some(context => (context.documentUrl || context.url) === url)) {
+      await chrome.offscreen.createDocument({
+        url: 'clipboard.html',
+        reasons: ['CLIPBOARD'],
+        justification: 'Read clipboard text without changing the focused input or frame.'
+      });
+    }
+
+    try {
+      const response = await chrome.runtime.sendMessage({ type: 'readClipboardOffscreen' });
+      if (!response?.ok || typeof response.text !== 'string') {
+        throw new Error('Clipboard read failed in the offscreen document');
+      }
+      return response.text;
+    } finally {
+      await chrome.offscreen.closeDocument().catch(error => {
+        console.warn('Failed to close the clipboard document:', error);
+      });
+    }
+  });
+  clipboardReadQueue = read.catch(() => {});
+  return read;
+};
 
 const createGrayscaleIcons = async () => {
   const icons = {};
@@ -155,21 +196,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       // Read in the same tab's top frame so an iframe's Permissions Policy
       // cannot block clipboard access. Do not move focus from the input.
-      const results = await chrome.scripting.executeScript({
-        target: { tabId, frameIds: [0] },
-        func: async () => {
-          try {
-            return { text: await navigator.clipboard.readText() };
-          } catch (error) {
-            console.error('Clipboard read failed:', error);
-            return { error: true };
+      let text;
+      try {
+        const results = await chrome.scripting.executeScript({
+          target: { tabId, frameIds: [0] },
+          func: async () => {
+            if (!navigator.clipboard?.readText) return { error: true };
+            try {
+              return { text: await navigator.clipboard.readText() };
+            } catch (_) {
+              return { error: true };
+            }
           }
-        }
-      });
-      const result = results.find(frame => frame.frameId === 0)?.result;
-      sendResponse(typeof result?.text === 'string'
-        ? { ok: true, text: result.text }
-        : { ok: false });
+        });
+        text = results.find(frame => frame.frameId === 0)?.result?.text;
+      } catch (_) {
+        // Page injection can fail too; the extension still has clipboardRead.
+      }
+      if (typeof text !== 'string') text = await readClipboardInExtension();
+      sendResponse({ ok: true, text });
     })().catch(error => {
       console.error('Failed to read clipboard for paste:', error);
       sendResponse({ ok: false });

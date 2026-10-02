@@ -1,6 +1,6 @@
 (async () => {
-  // Follow the focused frame chain. activeTab allows access to same-origin
-  // documents, including nested frames, without requesting extra host access.
+  // Follow the focused iframe/frame chain, including legacy frameset documents.
+  // activeTab allows access to nested same-origin documents without extra host access.
   let document = globalThis.document;
   while (document.activeElement?.matches('iframe, frame')) {
     const childDocument = document.activeElement.contentDocument;
@@ -154,7 +154,7 @@
   try {
     const response = await chrome.runtime.sendMessage({ type: 'readClipboardForPaste' });
     if (!response?.ok || typeof response.text !== 'string') {
-      throw new Error('Clipboard read failed in the top frame');
+      throw new Error('Clipboard read failed in both the page and extension');
     }
     raw = response.text;
   } catch (e) {
