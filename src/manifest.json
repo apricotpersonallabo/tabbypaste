@@ -33,6 +33,10 @@
     "storage",
     "tabs"
   ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
   "commands": {
     "auto_paste": {
       "suggested_key": {
