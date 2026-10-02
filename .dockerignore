@@ -4,7 +4,6 @@ artifacts
 coverage
 node_modules
 playwright-report
-templates
 *.crx
 *.log
 *.xpi

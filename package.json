@@ -5,10 +5,8 @@
   "scripts": {
     "build:extensions": "node scripts/extension/sync-manifest-version.mjs",
     "package:extensions": "node scripts/extension/package-extensions.mjs",
-    "template:check": "node scripts/template/browser-extension.mjs --check",
-    "template:package": "node scripts/template/browser-extension.mjs",
     "test": "node scripts/test/run-docker-tests.mjs",
-    "test:all:container": "pnpm run test:fast && pnpm run template:check && pnpm run package:extensions && pnpm run test:e2e:prepare && pnpm run test:e2e:container",
+    "test:all:container": "pnpm run test:fast && pnpm run package:extensions && pnpm run test:e2e:prepare && pnpm run test:e2e:container",
     "test:e2e:container": "node scripts/test/run-e2e-tests.mjs",
     "test:e2e:prepare": "node scripts/test/prepare-e2e.mjs",
     "test:fast": "pnpm run version:check && pnpm run test:syntax && pnpm run test:unit",

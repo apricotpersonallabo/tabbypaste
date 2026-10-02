@@ -24,13 +24,13 @@ The Firefox package uses `manifest.firefox.json` as its source manifest. Release
 
 ## Version management
 
-`config/version.json` is the single source of truth for the extension version. The source manifests are templates whose version remains `0.0.0.1`. Increment only `config/version.json` with:
+`config/version.json` is the single source of truth for the extension version. The source manifests keep the placeholder version `0.0.0.1`. Increment only `config/version.json` with:
 
 ```sh
 pnpm run version:increment
 ```
 
-Commit `config/version.json`. To validate it and confirm that both source manifests still use the template version, run:
+Commit `config/version.json`. To validate it and confirm that both source manifests still use the placeholder version, run:
 
 ```sh
 pnpm run version:check
@@ -52,7 +52,7 @@ pnpm run package:extensions
 
 The Chromium and Firefox archives are written to `artifacts/packages/`. The package metadata in `artifacts/test-results/package-metadata.json` keeps their file names for CI and release jobs.
 
-Pushes and pull requests validate the source templates and package generated builds but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
+Pushes and pull requests validate the source manifests and package generated builds but do not create a release. After the version commit is on `main` and validation passes, run **Validate and release browser extensions** manually from the GitHub Actions page using the `main` branch.
 
 ## Repository layout
 
@@ -66,18 +66,14 @@ Pushes and pull requests validate the source templates and package generated bui
 ├── scripts/                       # Development and CI automation
 │   ├── extension/                 # Versioning, builds, and packages
 │   ├── release/                   # Store validation and submission
-│   ├── template/                  # Template archive maintenance
 │   └── test/                      # Syntax, Docker, and E2E runners
 ├── src/                           # Shared browser-extension source
-├── tests/
-│   ├── unit/                      # Node.js unit tests
-│   └── e2e/
-│       ├── docker/                # E2E Compose and browser images
-│       ├── fixtures/              # Browser test pages
-│       └── support/               # E2E helpers and diagnostics
-└── templates/
-    ├── browser-extension/         # Reusable template source
-    └── packages/                  # Downloadable template archives
+└── tests/
+    ├── unit/                      # Node.js unit tests
+    └── e2e/
+        ├── docker/                # E2E Compose and browser images
+        ├── fixtures/              # Browser test pages
+        └── support/               # E2E helpers and diagnostics
 ```
 
 The repository root keeps only documentation and standard project-management files. Every generated file is grouped under the untracked `artifacts/` directory:
@@ -88,8 +84,6 @@ artifacts/
 ├── packages/                      # Verified store-submission ZIP files
 └── test-results/                  # Package metadata and test diagnostics
 ```
-
-To update the reusable browser-extension template after editing `templates/browser-extension/`, run `pnpm run template:package`. `pnpm run template:check` verifies that the source and `templates/packages/browser-extension-template.zip` have identical files and contents.
 
 ## Automated tests
 
