@@ -192,6 +192,74 @@ export const registerExtensionContract = ({ browserName, createBrowser }) => {
       });
     }
 
+    await runScenario(t, driver, extensionOrigin, browserName, 'reads clipboard outside a restricted iframe when injected directly into it', async () => {
+      await driver.get(`${baseUrl}/frames.html`);
+      await copyFromFixture(driver, 'copyHappy');
+      // Grant activeTab as a real context-menu invocation would, without filling a field.
+      await sendExtensionShortcut(shortcutUrl);
+      await driver.wait(until.elementLocated(By.id('tabby-paste-notification-host')), 10_000);
+      await driver.executeScript("document.getElementById('tabby-paste-notification-host').remove()");
+      const pageHandle = await driver.getWindowHandle();
+
+      await driver.switchTo().newWindow('tab');
+      try {
+        await waitForExtensionPage(driver, extensionOrigin);
+        const error = await driver.executeAsyncScript(async (pageUrl, done) => {
+          try {
+            const tabs = await chrome.tabs.query({});
+            const tab = tabs.find(tab => tab.url === pageUrl);
+            const frames = await chrome.scripting.executeScript({
+              target: { tabId: tab.id, allFrames: true },
+              func: () => location.href
+            });
+            const frame = frames.find(frame => frame.result.endsWith('?clipboardBlocked'));
+            if (!frame) throw new Error('Restricted iframe not found');
+            // Keep the extension page open while restoring focus to the destination tab.
+            const target = { tabId: tab.id, frameIds: [frame.frameId] };
+            const deadline = Date.now() + 10_000;
+            const injectWhenFocused = async () => {
+              const focus = await chrome.scripting.executeScript({
+                target,
+                func: () => document.hasFocus() && document.activeElement?.id === 'textField'
+              });
+              if (focus.some(frame => frame.result)) {
+                await chrome.scripting.executeScript({ target, files: ['filler.js'] });
+              } else if (Date.now() < deadline) {
+                setTimeout(() => injectWhenFocused().catch(console.error), 50);
+              }
+            };
+            injectWhenFocused().catch(console.error);
+            done(null);
+          } catch (error) {
+            done(String(error));
+          }
+        }, `${baseUrl}/frames.html`);
+        assert.equal(error, null);
+      } finally {
+        // Closing this tab would cancel the scheduled injection.
+        await driver.switchTo().window(pageHandle);
+      }
+
+      const frame = await driver.findElement(By.id('blockedClipboardFrame'));
+      await driver.executeScript('arguments[0].scrollIntoView({ block: "center" })', frame);
+      await driver.switchTo().frame(frame);
+      await driver.findElement(By.id('textField')).click();
+      await waitForValue(driver, 'textField', 'Alpha');
+      await waitForValue(driver, 'passwordField', 'S3cret');
+      await waitForValue(driver, 'textareaField', 'Long note');
+      await waitForValue(driver, 'selectField', 'eng');
+      assert.equal(await driver.findElements(By.id('tabby-paste-notification-host')).then(elements => elements.length), 0);
+      await driver.switchTo().defaultContent();
+      assert.equal(await driver.findElement(By.id('topField')).getAttribute('value'), '');
+
+      for (const handle of await driver.getAllWindowHandles()) {
+        if (handle === pageHandle) continue;
+        await driver.switchTo().window(handle);
+        await driver.close();
+      }
+      await driver.switchTo().window(pageHandle);
+    });
+
     await runScenario(t, driver, extensionOrigin, browserName, 'persists options through storage.sync', async () => {
       await waitForExtensionPage(driver, extensionOrigin);
       const enabledUrls = await driver.findElement(By.id('enabledUrls'));

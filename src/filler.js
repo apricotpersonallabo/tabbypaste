@@ -152,7 +152,11 @@
   /* 1. クリップボード読み取り */
   let raw = '';
   try {
-    raw = await navigator.clipboard.readText();
+    const response = await chrome.runtime.sendMessage({ type: 'readClipboardForPaste' });
+    if (!response?.ok || typeof response.text !== 'string') {
+      throw new Error('Clipboard read failed in the top frame');
+    }
+    raw = response.text;
   } catch (e) {
     console.error('Clipboard read failed:', e);
     showNotification(chrome.i18n.getMessage('clipboardReadFailed'));

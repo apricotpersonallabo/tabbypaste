@@ -144,7 +144,39 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'sync' && (changes.enabledUrls || changes.extensionEnabled)) refreshAllTabs();
 });
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type === 'readClipboardForPaste') {
+    (async () => {
+      const tabId = sender.tab?.id;
+      if (!tabId || !(await isEnabledUrl(sender.tab.url))) {
+        sendResponse({ ok: false });
+        return;
+      }
+
+      // Read in the same tab's top frame so an iframe's Permissions Policy
+      // cannot block clipboard access. Do not move focus from the input.
+      const results = await chrome.scripting.executeScript({
+        target: { tabId, frameIds: [0] },
+        func: async () => {
+          try {
+            return { text: await navigator.clipboard.readText() };
+          } catch (error) {
+            console.error('Clipboard read failed:', error);
+            return { error: true };
+          }
+        }
+      });
+      const result = results.find(frame => frame.frameId === 0)?.result;
+      sendResponse(typeof result?.text === 'string'
+        ? { ok: true, text: result.text }
+        : { ok: false });
+    })().catch(error => {
+      console.error('Failed to read clipboard for paste:', error);
+      sendResponse({ ok: false });
+    });
+    return true;
+  }
+
   if (message?.type !== 'getActiveTabAvailability') return false;
 
   (async () => {
