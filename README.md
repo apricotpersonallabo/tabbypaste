@@ -108,6 +108,7 @@ Chrome Web Store listing metadata is managed in the Developer Dashboard and is n
 
 - `storage`: Stores the user’s Tabby Paste preferences—including enabled URL patterns, paste delay, select-option behavior, and extension enabled state—in `chrome.storage.sync` so they persist and can sync through the user’s Chrome account. Tabby Paste does not send this data to developer-controlled servers.
 - `tabs`: Uses tab IDs and URLs to determine whether Tabby Paste is enabled for each tab, update the toolbar icon and badge, and inject the paste helper only into the user-selected eligible tab. It also opens the extension settings and shortcut pages. Tabby Paste does not transmit browsing data to developer-controlled servers.
+- `host_permissions` (`http://*/*`, `https://*/*`): Declares access to standard web pages so Chrome and Edge expose their site-access controls, including the option to allow Tabby Paste on all sites. The extension still injects the paste helper only after the user invokes Tabby Paste and the extension's own URL filter allows the page. Tabby Paste does not transmit page or browsing data to developer-controlled servers.
 
 When Chrome returns `INVALID_ITEM_METADATA`, open the edit-item link from the Actions error, complete the fields identified by **Why can't I submit?**, and save the draft before retrying the failed Chrome job.
 
