@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "defaultLanguage": "en",
+  "product": {
+    "name": "Tabby Paste",
+    "tagline": "One row, every field.",
+    "description": "Paste one row of tab-separated clipboard values into successive web form fields with Tabby Paste."
+  },
+  "repository": {
+    "url": "https://github.com/apricotpersonallabo/tabbypaste",
+    "issues": "https://github.com/apricotpersonallabo/tabbypaste/issues"
+  },
+  "theme": {
+    "primary": "#183153",
+    "accent": "#dc681c"
+  },
+  "languages": [
+    "ja",
+    "en",
+    "de",
+    "es",
+    "ko",
+    "zh-CN",
+    "zh-TW"
+  ],
+  "stores": {
+    "chrome": "https://chromewebstore.google.com/detail/tabby-paste/pnfhlnlilceabibdeamkinhjjgmmnhme",
+    "edge": "https://microsoftedge.microsoft.com/addons/detail/tabby-paste/gjkopcpoddbifofepjnopohpcoeehlbg",
+    "firefox": "https://addons.mozilla.org/en-US/firefox/addon/tabby-paste/"
+  },
+  "pages": [
+    {
+      "slug": "index",
+      "title": "Overview",
+      "source": "content/index.md"
+    },
+    {
+      "slug": "manual",
+      "title": "Guide",
+      "source": "content/manual.md"
+    }
+  ]
+}
