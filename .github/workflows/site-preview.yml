@@ -12,7 +12,7 @@ on:
 
 jobs:
   preview:
-    uses: apricotpersonallabo/apricotpersonallabo/.github/workflows/site-preview.yml@d5681fa8228fdfbceae181afdc7222340bb8ca4a
+    uses: apricotpersonallabo/site-platform/.github/workflows/site-preview.yml@fea5c9ea87f67cd4d666ed4fdade25f9dcff9759
     with:
       site-directory: site
       artifact-name: tabbypaste-site-preview
